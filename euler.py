@@ -6,6 +6,7 @@ from itertools import combinations
 from itertools import combinations_with_replacement
 import copy
 import string
+import os
 
 def sieveOfE(theMax):
 	currList = range(2, theMax)
@@ -3411,26 +3412,6 @@ def euler111():
     return currL
 
 
-
-def euler66():
-    squares = [x**2 for x in range(0, 100)]
-    nonSquares = set(range(0, 1000)).difference(set(squares))
-    l = []
-
-    for d in nonSquares:
-        x = 1
-        y = 1
-        curr = 0
-        while curr != 1:
-            curr = x**2 - d*y**2
-            if curr < 0:
-                y = 1
-                x = x + 1
-            else:
-                y = y + 1
-        l = l + [x]
-    return l
-
 def getChain(n):
     curr = n
     currL = []
@@ -4695,7 +4676,16 @@ def euler87():
 def getSqRem(a,n):
     return ((a-1)**n + (a+1)**n)%a**2
 
-#def euler120():
+def euler120():
+    theMax = 0
+    for a in range(3, 1001):
+        for n in range(1, 1000):
+            curr = getSqRem(a,n)
+            if curr > theMax:
+                theMax = curr
+    return theMax
+
+
 
 def euler179():
     count = 0
@@ -4716,55 +4706,70 @@ def confirmPrime(n, primes):
             return False
     return True
 
+def checkListFive(l):
+    if len(l) != 5:
+        return False
+    for x in l:
+        for y in l:
+            if x != y:
+                if not (isPrime(int(str(x) + str(y))) and isPrime(int(str(y) + str(x)))):
+                    return False
+    return True
+
 def euler60():
     primes = sieveOfE(10000)
     l = []
-    for x in range(0, len(primes)):
-        for y in range(0, len(primes)):
+    for x in primes:
+        for y in primes:
             if x != y:
-                if isPrime(int(str(primes[x]) + str(primes[y]))) and isPrime(int(str(primes[y]) + str(primes[x]))):
-                    print (x,y)
+                if isPrime(int(str(x) + str(y))) and isPrime(int(str(y) + str(x))):
                     l = l + [(x,y)]
-    return l
 
-def findCycle(l0, l1, l2, l3, l4, l5):
-    allLists = [l0] + [l1] + [l2] + [l3] + [l4] + [l5]
-    otherLists = [l1] + [l2] + [l3] + [l4] + [l5]
+    for (a,b) in l:
+        if (b,a) in l:
+            l.remove((b,a))
+    #print l
+    counts = []
+    for x in primes:
+        count = 0
+        for (a,b) in l:
+            if x == a or x == b:
+                count = count + 1
+        counts = counts + [(x,count)]
 
-    for x in l0:
-        s = str(x)
-        for y in range(0, len(otherLists)):
-            potentialB = []
-            potentialF = []
-            for i in otherLists[y]:
-                s0 = str(i)
-                if s0[0] == s[2] and s0[1] == s[3]:
-                    potentialB = potentialB + [i]
-                elif s0[2] == s[0] and s0[3] == s[1]:
-                    potentialF = potentialF + [i]
+    possible = [i[0] for i in counts if i[1] >= 4]
 
-            if len(potentialF) != 0 and len(potentialB) != 0:
-                #print potentialB
-                #print potentialF
-                potentialFNext = []
-                potentialBNext = []
+    pathLenFive = []
+    for i in possible:#designate the start of the dfs
+    #i = 3
+        stack = []
+        pathLen = 1
+        for (a,b) in l:
+            path = [i]
+            if i == a:
+                path = path + [b]
+                stack.append((b, pathLen, path))
+            elif i == b:
+                path = path + [a]
+                stack.append((a, pathLen, path))
 
-                remaining = otherLists[:]
-                del remaining[y]
-                for q in potentialF:
-                    k = str(q)
-                    for p in range(0, len(remaining)):
-                        for i in remaining[p]:
-                            s0 = str(i)
-                            if s0[0] == k[2] and s0[1] == k[3]:
-                                potentialBNext = potentialBNext + [i]
-                            elif s0[2] == k[0] and s0[3] == k[1]:
-                                potentialFNext = potentialFNext + [i]
-                    if len(potentialBNext) != 0 and len(potentialFNext) != 0:
-                        print potentialBNext
-                        print potentialFNext
-                    print "k is : " + k
+        while len(stack) != 0:
+            (a,c, currP) = stack.pop()
+            if c >= 4:
+                if checkListFive(set(currP)):
+                    print currP
+                    pathLenFive = pathLenFive + [currP]
 
+            else:
+                for (x,y) in l:
+                    if x == a and ((y,i) in l or (i,y) in l):
+                        if y not in currP:
+                            stack.append((y, c + 1, currP + [y]))
+
+                    elif y == a and ((x,i) in l or (i,x) in l):
+                        if x not in currP:
+                            stack.append((x, c + 1, currP + [x]))
+    return pathLenFive
 
 
 def euler61():
@@ -4782,7 +4787,27 @@ def euler61():
     a4 = [x for x in l4 if len(str(x)) == 4]
     a5 = [x for x in l5 if len(str(x)) == 4]
 
-    findCycle(a0, a1, a2, a3, a4, a5)
+    lists = [a0, a1, a2, a3, a4, a5]
+
+    perms = [x for x in permutations(range(0,6))]
+    for (a,b,c,d,e,f) in perms:
+        curr = []
+        for v in lists[a]:
+            for w in lists[b]:
+                if str(v)[2:] == str(w)[0:2]:
+                    for x in lists[c]:
+                        if str(w)[2:] == str(x)[0:2]:
+                            for y in lists[d]:
+                                if str(x)[2:] == str(y)[0:2]:
+                                    for z in lists[e]:
+                                        if str(y)[2:] == str(z)[0:2]:
+                                            for p in lists[f]:
+                                                if str(z)[2:] == str(p)[0:2]:
+                                                    if str(p)[2:] == str(v)[0:2]:
+                                                        return [v,w,x,y,z,p]
+
+    return []
+
 
 
 def numSols(n): #number of solutions to 1/x + 1/y = 1/n
@@ -4854,6 +4879,92 @@ def euler70():
         print x
     return li
 
+def sqrtPeriod(n):#determine the length of the period of sqrt(n)
+    a0 = int(n**0.5)
+    if a0*a0 == n:
+        return 0
+    prev = (n**0.5 - a0, 1)
+    dPrev = -a0
+    length = 0
+    a = [a0]
+    nextFract = (0, 1)
 
+    while nextFract != prev:
+        equiv = (n**0.5 + -1*dPrev, (n - dPrev**2)/nextFract[1])
+        aNext = int(equiv[0]/equiv[1])
+        nextN = -1*dPrev - aNext*equiv[1]
+        nextFract = (n**0.5 + nextN, equiv[1])
+        dPrev = nextN
+        a = a + [aNext]
+        length = length + 1
+    return a
+
+def euler64():
+    num = 0
+    for x in range(2, 10001):
+        if sqrtPeriod(x)%2 != 0:
+            num = num + 1
+    return num
+
+def getECon(n):
+    l = [2]
+    for x in range(1, int(n/3) + 2):
+        l = l + [1, 2*x, 1]
+    return l[0:n+1]
+
+def eCon(n):#nth convergent of e
+    l = getECon(n)
+    nextFract = l[len(l) - 1]
+    for x in range(len(l) - 1, 0, -1):
+        prev = Fraction(1, nextFract)
+        nextFract = Fraction(Fraction(l[x - 1], 1) + prev)
+    return nextFract
+
+def sumDig(n):
+    l = [int(i) for i in str(n)]
+    return sumList(l)
+
+def euler65():
+    f = eCon(99)
+    return sumDig(f.numerator)
+
+
+def findMinSolCF(D):#compute the continued fraction of sqrt(n)
+    a = sqrtPeriod(D)
+    a = a + a[1:]
+    A = [a[0], a[0]*a[1] + 1]
+    B = [1, a[1]]
+    ind = 2
+    found = False
+
+    for i in range(0, 2):
+        if A[i]**2 - D*(B[i]**2) == 1:
+            return (A[i], B[i])
+
+
+    while not found:
+        if ind >= len(a):
+            a = a + a[1:]
+
+        Anext = a[ind]*A[1] + A[0]
+        Bnext = a[ind]*B[1] + B[0]
+        A = [A[1]] + [Anext]
+        B = [B[1]] + [Bnext]
+        ind = ind + 1
+        if Anext**2 - D*(Bnext**2) == 1:
+            found = True
+            return (Anext, Bnext)
+
+def euler66():
+    squares = set([x**2 for x in range(1, 1001)])
+    l = set(range(1, 1001)).difference(squares)
+    print l
+
+    currMax = (0, 0)
+    for i in l:
+        (a,b) = findMinSolCF(i)
+        if a > currMax[0]:
+            currMax = (a, i)
+    return currMax
 
 
