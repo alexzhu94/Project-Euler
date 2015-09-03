@@ -7,6 +7,7 @@ from itertools import combinations_with_replacement
 import copy
 import string
 import os
+from decimal import *
 
 def sieveOfE(theMax):
 	currList = range(2, theMax)
@@ -4966,5 +4967,46 @@ def euler66():
         if a > currMax[0]:
             currMax = (a, i)
     return currMax
+
+def pellsEq(D, numSols):
+    a = sqrtPeriod(D)
+    a = a + a[1:]
+    A = [a[0], a[0]*a[1] + 1]
+    B = [1, a[1]]
+    ind = 2
+    currSols = 0
+    sols = []
+    for i in range(0, 2):
+        if A[i]**2 - D*(B[i]**2) == 1:
+            sols = sols + [(A[i], B[i])]
+            currSols = currSols + 1
+
+    while currSols < numSols:
+        if ind >= len(a):
+            a = a + a[1:]
+
+        Anext = a[ind]*A[1] + A[0]
+        Bnext = a[ind]*B[1] + B[0]
+        A = [A[1]] + [Anext]
+        B = [B[1]] + [Bnext]
+        ind = ind + 1
+        if Anext**2 - D*(Bnext**2) == 1:
+            sols = sols + [(Anext, Bnext)]
+            currSols = currSols + 1
+    return sols
+
+
+def euler80():
+    squares = set([x**2 for x in range(1, 101)])
+    l = set(range(1, 101)).difference(squares)
+    total = 0
+
+    for x in l:
+        l = pellsEq(x, 1000)
+        num = l[len(l) - 1][0]*10**100/l[len(l) - 1][1]
+        currSum = sumList([int(i) for i in str(num)[0:100]])
+        total = total + currSum
+        print (x, currSum)
+    return total
 
 
