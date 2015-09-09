@@ -110,3 +110,25 @@ for i in a0:
                                                 curr = curr + [(k, i, j, m, n, o)]
         l = l +curr
 
+
+
+Only check numbers of the form 3n + 1 and 3n - 1
+
+2n - 1 > n
+
+2n > n+1
+
+2n + 1 > n
+
+
+3n + 1 and 3n - 1 for all n > 1 are all the almost equilateral
+triangles of integral side length, but not integral area.
+
+based on heron's formula, we have that 
+
+(((3n - 1)/2)((3n - 1)/2 - n)((3n - 1)/2 - n)((3n - 1)/2 - (n-1)))**0.5 must be an integer
+
+((3n-1)/2)((n + 1)/2 )
+
+
+(3*n**2 + 2*n - 1) = 4*x**2

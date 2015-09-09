@@ -191,16 +191,6 @@ def euler63():
 				count = count + 1
 	return count
 
-def euler75():
-	l = []
-	for a in range(1, 375001):
-		for b in range(a, 500001):
-			c_sq = a**2 + b**2
-			c = c_sq**0.5
-			if int(c) ** 2 == c_sq:
-				l = l + [a + b + c]
-	return l
-
 def detRepLen(n):#assuming n has a repeating sequence
     powOfTen = 1
     remainders = []
@@ -3511,14 +3501,17 @@ def checkSquares(s0, s1):
 def euler90():
     digits = set(range(0,10))
     l = [set(list(x)) for x in combinations(digits, 6)]
+    print l
     theSets = [(s, extendedSet(s)) for s in l]
+    #print len(theSets)
+
     count = 0
     for x in theSets:
         for y in theSets:
-            if x != y:
+            if x[0] != y[0]:
                 if checkSquares(x[1], y[1]):
                     count = count + 1
-    return count
+    return count/2
 
 def euler102():
     l = [[(-340,495),(-153,-910),(835,-947)],
@@ -4646,23 +4639,6 @@ def numPrimeSums(n, l, ind):
             currSum = currSum + numPrimeSums(n - x*l[ind], l, ind + 1)
         return currSum
 
-def euler75():
-    squares = [x**2 for x in range(1, 1500000)]
-    impCount = 0
-    for n in range(1, 1500000):
-        count = 0
-        impSquares = [x for x in squares if x < n]
-        for x in range(0, len(impSquares)):
-            for y in range(0,len(impSquares)):
-                if squares[x] + squares[y] in squares:
-                    z = int(math.sqrt( squares[x] + squares[y] ))
-                    if (x + 1) + (y + 1) + z == n:
-                        count = count + 1
-        if count == 2:
-            impCount = impCount + 1
-        print n
-    return impCount
-
 def euler87():
     l0 = sieveOfE(7100)
     l1 = sieveOfE(400)
@@ -4852,16 +4828,78 @@ def sumToN(n, l, i, d):
                 currSum = currSum + val
         return currSum
 
+def generalizedPen(n):#generalized pentagonal numbers
+        l = [x*(3*x - 1)/2 for x in range(-n,n)]
+        l.remove(0)
+        l.sort()
+        return l
 
-def euler78():# number of distinct sums of natural numbers that sum to n
-    curr = -1
-    val = 1
-    d = {}
-    while curr%1000000 != 0:
-        curr = sumToN( val, range(1,val + 1), 0, d)
-        print (val, curr)
-        val = val + 1
-    return val
+def pentNumThrm(n, p):#return list of all partitions up to n using euler's pentagonal number theorem
+    if n < 0:
+        return (0, p)
+    elif n == 0 or n == 1:
+        return (1, p)
+    else:
+        indices = []
+        for x in range(1, n):
+            indices = indices + [x, x*-1]
+
+        currSum = 0
+        for k in indices:
+            val = n - k*(3*k - 1)/2
+            if val >= 0 and val not in p.keys():
+                p[val] = pentNumThrm(val, p)[0]%1000000
+                currSum = currSum + (-1)**(k - 1)*p[val]
+            elif val >= 0:
+                currSum = currSum + (-1)**(k - 1)*p[val]
+            else:
+                break
+
+        currSum = currSum%1000000
+        return (int(currSum), p)
+
+def iterPentNumThrm():
+    indices = [1, -1]
+    #for x in range(1, n):
+        #indices = indices + [x, x*-1]
+    p = [1,1]
+    curr = 2
+
+    while p[len(p) - 1] != 0:
+    #for i in range(0, 15):
+        indices = indices + [curr, curr*-1]
+        currSum = 0
+        for k in indices:
+            val = curr - k*(3*k - 1)/2
+            #if val < 0:
+            #    break
+            #else:
+            #    currSum = currSum + (-1)**(k - 1)*p[val]
+            if val >= 0:
+                currSum = currSum + (-1)**(k - 1)*p[val]
+        p = p + [currSum%1000000]
+        curr = curr + 1
+        print curr
+    return p
+
+def euler78():
+    n = 100000
+    #indices = [1, -1]
+    indices = []
+    for x in range(1, n):
+        indices = indices + [x, x*-1]
+    p = [1,1]
+    for curr in range(2, n):
+        currSum = 0
+        for k in indices:
+            val = curr - k*(3*k - 1)/2
+            if val >= 0:
+                currSum = currSum + (-1)**(k - 1)*p[val]
+            else:
+                break
+        p = p + [int(currSum%1000000)]
+        #print curr
+    return p.index(0)
 
 def numPerm(a,b):
     la = [int(i) for i in str(a)]
@@ -5009,4 +5047,77 @@ def euler80():
         print (x, currSum)
     return total
 
+def euler75():
+    count = 0
+    squares = [x**2 for x in range(3, 750000)]
+    l = []
+    for x in range(0, len(squares)):
+        for y in range(x, len(squares)):
+            currSum = squares[x] + squares[y]
+            if currSum > 750000:
+                break
+            else:
+                root = int(currSum**0.5)
+                if root**2 == currSum:
+                    l = l + [(x,y,root)]
+        print x
+    print l
+
+def verifyRightTri(a,b,c):
+
+    ab = (a[0] - b[0], a[1] - b[1])
+    ac = (a[0] - c[0], a[1] - c[1])
+    cb = (c[0] - b[0], c[1] - b[1])
+    vectors = [ab,ac, cb]
+    scalars = []
+    for a in vectors:
+        for b in vectors:
+            if a != b:
+                scalars = scalars + [a[0]*b[0] + a[1]*b[1]]
+    if 0 in scalars:
+        return True
+    return False
+
+
+def euler91():
+    plane = 50
+    points = []
+    triangles = []
+    for x in range(0, plane + 1):
+        for y in range(0, plane + 1):
+            points = points + [(x,y)]
+    points.remove((0,0))
+
+    for a in points:
+        for b in points:
+            if a != b:
+                if verifyRightTri((0,0),a,b):
+                    triangles = triangles + [((0,0),a,b)]
+    return triangles
+
+
+
+def euler85():
+    l = []
+    for length in range(1, 100):
+        for width in range(1,100):
+            currSum = 0
+            for x in range(1, length + 1):
+                for y in range(1, width + 1):
+                    subrect = (x,y)
+                    diffX = length - subrect[0]
+                    diffY = width - subrect[1]
+                    currSum = currSum + (1 + diffX)*(1 + diffY)
+            l = l + [(currSum, x,y)]
+    sol = [x for x in l if (x[0] - 2000000)**2 < 10000]
+    return sol
+
+
+def euler84():
+    squares = range(0, 40)
+    cc = [2, 17, 33]
+    ch = [7, 22, 36]
+
+
+#def euler94():
 
