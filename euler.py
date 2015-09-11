@@ -363,18 +363,6 @@ def constructIndices(numDig):
     return permutations(set(range( 0, numDig - 1 )), 2)#the one's place will never allow an 8 dig prime fam
 
 
-def euler51():
-    primes = sieveOfE(1000000)
-
-    currPrimes = [x for x in primes if len(str(x)) == 6]
-    for x in currPrimes:
-        l = [int(i) for i in str(x)]
-        #good = [x for x in combinations(range(0,5),2) if (sumList(l) - l[x[0]] - l[x[1]]) % 3 != 0]
-        for indices in good:
-            if confirm8DigPrimeFam(x, indices, currPrimes):
-                return x
-    return -1
-
 def processNum(n):
 
     singDig = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
@@ -3289,20 +3277,66 @@ def isHTPandig(n):
 #        return True
 #    return False
 
+def isPandig(n):
+    l = [int(i) for i in str(n)]
+    pan = range(1, 10)
+    l1 = l[0:9]
+    l1.sort()
+    if l1 == pan:
+        return True
+    return False
+
+
 def euler104():
     n2 = 1
     n1 = 1
-    count = 3
-    for x in range(0, 1000000):
+    l = []
+    for x in range(3, 500000):
         temp = n1
-        n1 = n2 + n1
+        n1 = (n2 + n1)%10**9
         n2 = temp
-        if isHTPandig(n1):
-            return (count, n1)
-        count = count + 1
-        print count
-    return -1
+        if isPandig(n1):
+            l = l + [x]
+        print x
+    print l
+    golden = (1 + 5**0.5)/2
+    l1 = []
+    for n in range(0, 500000):
+        log = n*math.log10(golden) - math.log10(5**0.5)
+        #print round(10**log)
+        print n
+        if log > 9:
+            log = log - int(log)
+            print int(10**8*10**log)
+            if isPandig(int(10**8*10**log)):
+                l1 = l1 + [n]
+    return (l, l1)
 
+def test104():
+    golden = (1 + 5**0.5)/2
+    l1 = []
+    for n in range(0, 500000):
+        log = n*math.log10(golden) - math.log10(5**0.5)
+        #print round(10**log)
+        print n
+        if log > 9:
+            log = log - int(log)
+            print int(10**8*10**log)
+            if isPandig(int(10**8*10**log)):
+                l1 = l1 + [n]
+    return l1
+def fibtest104():
+    n2 = 1
+    n1 = 1
+    l = []
+    for x in range(3, 500000):
+        temp = n1
+        n1 = (n2 + n1)%10**9
+        n2 = temp
+        if isPandig(n1):
+            l = l + [x]
+        print x
+    print l
 
 def prodList(l):
     currProd = 1
@@ -4539,18 +4573,18 @@ def euler102():
         yint2 = -1
         yint3 = -1
 
-
         if hasSlope1:
-            slope1 = float((p1[1] - p2[1])/(p1[0] - p2[0]))
+            slope1 = float((p1[1] - p2[1]))/(p1[0] - p2[0])
             yint1 = p1[1] - slope1*p1[0]
 
         if hasSlope2:
-            slope2 = float((p2[1] - p3[1])/(p2[0] - p3[0]))
+            slope2 = float((p2[1] - p3[1]))/(p2[0] - p3[0])
             yint2 = p2[1] - slope2*p2[0]
 
         if hasSlope3:
-            slope3 = float((p3[1] - p1[1])/(p3[0] - p1[0]))
+            slope3 = float((p3[1] - p1[1]))/(p3[0] - p1[0])
             yint3 = p3[1] - slope3*p3[0]
+
 
         a = (p3[1] >= (p3[0]*slope1 + yint1))
         b = (p1[1] >= (p1[0]*slope2 + yint2))
@@ -4808,7 +4842,17 @@ def numSols2(n): #number of solutions to 1/x + 1/y = 1/n
     print lis
     return 2 + len(lis)
 
-#def euler108():
+def euler108():
+    z = []
+    for x in range(2, 10000):
+        for y in range(x + 1, 10000):
+            if x*y%(x+y) == 0:
+                z = z + [x*y/(x+y)]
+    zs = set(z)
+
+    l = [(a, z.count(a)) for a in zs]
+    thousand = [x for x in l if x[1] > 1000]
+    return thousand
 
 def sumToN(n, l, i, d):
     if i >= len(l):
@@ -4908,15 +4952,19 @@ def numPerm(a,b):
     lb.sort()
     return la == lb
 
+
 def euler70():
-    l = sieveOfE(10**7)
-    li = []
-    for x in range(10**7, 10**7 - 10000, -1):
-        currPhi = phi(x, l)
-        if numPerm(x, currPhi):
-            li = li + []
-        print x
-    return li
+    l = sieveOfE(10**4)
+    perms = []
+    for x in l:
+        for y in l:
+            if x*y < 10**7 and numPerm(x*y, (x-1)*(y-1)):
+                perms = perms + [(x*y, (x-1)*(y-1))]
+
+    ratios = [float(a)/b for (a,b) in perms]
+    return perms[ratios.index(min(ratios))]
+
+
 
 def sqrtPeriod(n):#determine the length of the period of sqrt(n)
     a0 = int(n**0.5)
@@ -5119,5 +5167,40 @@ def euler84():
     ch = [7, 22, 36]
 
 
-#def euler94():
+def primalityTestBasic(n):#apparently all primes are of the form 6*i +- 1
+    if n%2 == 0 or n%3 == 0:
+        return False
+    for count in range(6, int(n**0.5) + 1, 6):
+        if n%(count - 1) == 0 or n%(count + 1) == 0:
+            return False
+    return True
+
+def findFam(n):
+    print n
+    l = [int(i) for i in str(n)]
+    for y in set(l):
+        indices = [x for x in range(0, len(l)) if l[x] == y]
+        #print(y, indices)
+        family = []
+        for q in range(0, 10):
+            curr = [i for i in str(n)]
+            for p in indices:
+                #print (curr, p, q)
+                curr[p] = str(q)
+            n0 = int(''.join(curr))
+            if primalityTestBasic(n0):
+                family = family + [n0]
+        #print family
+        if len(family) == 8:
+            return family
+    return []
+
+
+def euler51():
+    l = sieveOfE(1000000)
+    l1 = []
+    for x in l:
+        if len(findFam(x)) != 0:
+            l1 = l1 + [[x]]
+    return l1
 
