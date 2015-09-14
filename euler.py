@@ -255,23 +255,25 @@ def euler47():
     return -1
 
 def generateDiag(n):
-	count = 0
-	l = []
-	start = 1
-	diff = 2
-	while count < n:
-		for x in range(0,4):
-			start = start + diff
-			l = l + [start]
-			count = count + 1
-		diff = diff + 2
-	return l
+    count = 0
+    l = []
+    start = 1
+    diff = 2
+    primesC = 0
+    while count < n:
+        for x in range(0,4):
+            start = start + diff
+            l = l + [start]
+            if isPrime(start):
+                primesC = primesC + 1
+            count = count + 1
+            if float(primesC)/len(l) == 8.0/13:#0.1:
+                print l
+                return diff + 1
+        diff = diff + 2
+    print (primesC, len(l))
+    return l
 
-
-def euler58():
-	primes = sieveOfE(30000000)
-	l = generateDiag(15000)
-	return float(len(set(l).intersection(set(primes))))/len(l)
 
 def generateTri(n):
         return [x*(x+1)/2 for x in range(1,n)]
@@ -5203,4 +5205,852 @@ def euler51():
         if len(findFam(x)) != 0:
             l1 = l1 + [[x]]
     return l1
+
+def rowElim(puzzle):
+    for i in range(0, len(puzzle)):
+        x = puzzle[i]
+        crossOut = []
+        for [a,b] in x:
+            if a != 0:
+                crossOut = crossOut + [a]
+        for j in range(0, len(puzzle[0])):
+            [a,b] = puzzle[i][j]
+            if a == 0:
+                b = list(set(b).difference(set(crossOut)))
+                if len(b) == 1:
+                    a = b[0]
+                    b = []
+                puzzle[i][j] = [a,b]
+    return puzzle
+
+def colElim(puzzle):
+    for col in range(0, len(puzzle[0])):
+        crossOut = []
+        for row in range(0, len(puzzle)):
+            [a,b] = puzzle[row][col]
+            if a != 0:
+                crossOut = crossOut + [a]
+
+        for row in range(0, len(puzzle)):
+            [a,b] = puzzle[row][col]
+            if a == 0:
+                b = list(set(b).difference(set(crossOut)))
+                if len(b) == 1:
+                    a = b[0]
+                    b = []
+                puzzle[row][col] = [a,b]
+    return puzzle
+
+
+def squareElim(puzzle):
+    for sqRow in range(0, 9, 3):
+        for sqCol in range(0, 9, 3):
+            crossOut = []
+            for x in range(sqRow, sqRow + 3):
+                for y in range(sqCol, sqCol + 3):
+                    [a,b] = puzzle[x][y]
+                    if a != 0:
+                        crossOut = crossOut + [a]
+            for x in range(sqRow, sqRow + 3):
+                for y in range(sqCol, sqCol + 3):
+                    [a,b] = puzzle[x][y]
+                    if a == 0:
+                        b = list(set(b).difference(set(crossOut)))
+                        if len(b) == 1:
+                            a = b[0]
+                            b = []
+                        puzzle[x][y] = [a,b]
+    return puzzle
+
+def numElim(puzzle):#within a square, if a number can only go in 1 place, then set that place to be that number
+    for sqRow in range(0, 9, 3):
+        for sqCol in range(0, 9, 3):
+            nums = {}
+            for p in range(1, 10):
+                nums[p] = 0
+            for x in range(sqRow, sqRow + 3):
+                for y in range(sqCol, sqCol + 3):
+                    [a,b] = puzzle[x][y]
+                    for i in b:
+                        nums[i] = nums[i] + 1
+            l = [q for q in nums.keys() if nums[q] == 1]
+
+            if len(l) > 0:
+                for x in range(sqRow, sqRow + 3):
+                    for y in range(sqCol, sqCol + 3):
+                        [a,b] = puzzle[x][y]
+                        for m in l:
+                            if m in b:
+                                puzzle[x][y] = [m, []]
+                                #print [(x,y), m]
+                                break
+        return puzzle
+
+def numElimByRow(puzzle):
+#numElim by row
+    rowColSq(puzzle)
+    for i in range(0, len(puzzle)):
+        nums = {}
+        for p in range(1, 10):
+            nums[p] = 0
+        for k in range(0, len(puzzle[0])):
+            [a,b] = puzzle[i][k]
+            for elm in b:
+                nums[elm] = nums[elm] + 1
+        l = [q for q in nums.keys() if nums[q] == 1]
+
+        #print l
+        #print nums
+        #print i
+        #print puzzle[i][:]
+
+        if len(l) > 0:
+            for j in range(0, len(puzzle[0])):
+                [a0,b0] = puzzle[i][j]
+                if a0 == 0:
+                    for m in l:
+                        if m in b0:
+                            puzzle[i][j] = [m, []]
+                            #print [(i,j), m]
+                            break
+    return puzzle
+
+def numElimByCol(puzzle):
+    rowColSq(puzzle)
+    for col in range(0, len(puzzle[0])):
+        nums = {}
+        for p in range(1, 10):
+            nums[p] = 0
+
+        for row in range(0, len(puzzle)):
+            [a,b] = puzzle[row][col]
+            #print [a,b]
+            for i in b:
+                nums[i] = nums[i] + 1
+
+        l = [q for q in nums.keys() if nums[q] == 1]
+
+        #print l
+        #print nums
+        #print col
+        #print puzzle[:][col]
+
+        if len(l) > 0:
+            for sameRow in range(0, len(puzzle)):
+                [x,y] = puzzle[sameRow][col]
+                if x == 0:
+                    for m in l:
+                        if m in y:
+                            #print (sameRow, col)
+                            puzzle[sameRow][col] = [m, []]
+                            break
+    return puzzle
+
+
+
+
+def rowColSq(possible):
+    for i in range(0, 10):
+        rows = rowElim(possible)
+        cols = colElim(possible)
+        sq = squareElim(possible)
+        #num = numElim(possible)
+        possible = sq
+    return possible
+
+def verifySudoku(puzzle):#false if there's a contradiction
+    retVal = True
+    for sqRow in range(0, 9, 3):
+        for sqCol in range(0, 9, 3):
+            crossOut = []
+            for x in range(sqRow, sqRow + 3):
+                for y in range(sqCol, sqCol + 3):
+                    [a,b] = puzzle[x][y]
+                    if a != 0:
+                        crossOut = crossOut + [a]
+            if len(set(crossOut)) != len(crossOut):
+                retVal = False
+
+    for i in range(0, len(puzzle)):
+        x = puzzle[i]
+        crossOut = []
+        for [a,b] in x:
+            if a != 0:
+                crossOut = crossOut + [a]
+        if len(set(crossOut)) != len(crossOut):
+            retVal = False
+
+    for col in range(0, len(puzzle[0])):
+        crossOut = []
+        for row in range(0, len(puzzle)):
+            [a,b] = puzzle[row][col]
+            if a != 0:
+                crossOut = crossOut + [a]
+        if len(set(crossOut)) != len(crossOut):
+            retVal = False
+
+    return retVal
+
+
+def numGuessBySq(puzzle):
+    for sqRow in range(0, 9, 3):
+        for sqCol in range(0, 9, 3):
+            nums = {}
+            for p in range(1, 10):
+                nums[p] = 0
+            for x in range(sqRow, sqRow + 3):
+                for y in range(sqCol, sqCol + 3):
+                    [a,b] = puzzle[x][y]
+                    for i in b:
+                        nums[i] = nums[i] + 1
+            l = [q for q in nums.keys() if nums[q] == 2]
+
+            if len(l) > 0:
+                for x in range(sqRow, sqRow + 3):
+                    for y in range(sqCol, sqCol + 3):
+                        [a,b] = puzzle[x][y]
+                        for m in l:
+                            if m in b:
+                                clone = copy.deepcopy(puzzle)
+                                clone[x][y] = [m, []]
+                                clone = numElim(clone)
+                                clone = rowColSq(clone)
+                                #return clone
+                                if not verifySudoku(clone):
+                                    print (sqRow, sqCol)
+                                    print (x,y)
+                                    print m
+                                    c = copy.deepcopy(b)
+                                    c.remove(m)
+                                    puzzle[x][y][1] = c
+                                    numElim(puzzle)
+                                    rowColSq(puzzle)
+                                    return puzzle
+                                    #rowColSq(puzzle)
+    return puzzle
+
+def numGuessByRow(puzzle):
+    rowColSq(puzzle)
+    for i in range(0, len(puzzle)):
+        nums = {}
+        for p in range(1, 10):
+            nums[p] = 0
+        for k in range(0, len(puzzle[0])):
+            [a,b] = puzzle[i][k]
+            for elm in b:
+                nums[elm] = nums[elm] + 1
+        l = [q for q in nums.keys() if nums[q] == 2]
+
+        if len(l) > 0:
+            for j in range(0, len(puzzle[0])):
+                [a0,b0] = puzzle[i][j]
+                if a0 == 0:
+                    for m in l:
+                        if m in b0:
+                            guess = copy.deepcopy(puzzle)
+                            guess[i][j] = [m,[]]
+                            guess = numElimByRow(guess)
+                            guess = rowColSq(guess)
+                            if not verifySudoku(guess):
+                                print (i,j)
+                                c = copy.deepcopy(b0)
+                                c.remove(m)
+                                puzzle[i][j][1] = c
+                                puzzle = numElimByRow(puzzle)
+                                puzzle = rowColSq(puzzle)
+    return puzzle
+
+def numGuessByCol(puzzle):
+    rowColSq(puzzle)
+    for col in range(0, len(puzzle[0])):
+        nums = {}
+        for p in range(1, 10):
+            nums[p] = 0
+
+        for row in range(0, len(puzzle)):
+            [a,b] = puzzle[row][col]
+            #print [a,b]
+            for i in b:
+                nums[i] = nums[i] + 1
+
+        l = [q for q in nums.keys() if nums[q] == 2]
+        if len(l) > 0:
+            for sameRow in range(0, len(puzzle)):
+                [x,y] = puzzle[sameRow][col]
+                if x == 0:
+                    for m in l:
+                        if m in y:
+                            guess = copy.deepcopy(puzzle)
+                            guess[sameRow][col] = [m,[]]
+                            guess = numElimByCol(guess)
+                            guess = rowColSq(guess)
+                            if not verifySudoku(guess):
+                                print (sameRow, col)
+                                c = copy.deepcopy(y)
+                                c.remove(m)
+                                puzzle[sameRow][col][1] = c
+                                puzzle = numElimByCol(puzzle)
+                                puzzle = rowColSq(puzzle)
+                                return puzzle
+    return puzzle
+
+def makeGuess(puzzle):
+    puzzle = numElim(puzzle)
+    puzzle = rowColSq(puzzle)
+    #puzzle = numElimByRow(puzzle)
+    #puzzle = numElimByCol(puzzle)
+
+
+    for row in range(0, len(puzzle)):
+        for col in range(0, len(puzzle[0])):
+            [a,b] = puzzle[row][col]
+            if a == 0 and len(b) == 2:
+                x = b[0]
+                y = []
+                guessPuzzle = copy.deepcopy(puzzle)
+                guessPuzzle[row][col] = [x,y]
+                guess = rowColSq(guessPuzzle)
+                #return guess
+                if not verifySudoku(guess):
+                    #actually, if the guess is the same puzzle, we can't just
+                    #assume that the guess is valid
+                    clone = copy.deepcopy(puzzle)
+                    x = b[1]
+                    y = []
+                    clone[row][col] = [x,y]
+                    return rowColSq(clone)
+                else:
+                    continue
+
+    #if it goes beyond this point, we need to start
+    for row in range(0, len(puzzle)):
+        for col in range(0, len(puzzle[0])):
+            [a,b] = puzzle[row][col]
+            if a == 0:
+                possible = []
+                for x in b:
+                    guessPuzzle = copy.deepcopy(puzzle)
+                    guessPuzzle[row][col] = [x, []]
+                    guess = rowColSq(guessPuzzle)
+                    if verifySudoku(guess):
+                        possible = possible + [x]
+                if len(possible) == 1:
+                    clone = copy.deepcopy(puzzle)
+                    clone[row][col] = [possible[0], []]
+                    return rowColSq(clone)
+                else:
+                    continue
+
+    print "unable to continue guessing"
+    return puzzle
+
+def doneSudoku(puzzle):
+    if not verifySudoku(puzzle):
+        return False
+
+    for row in range(0, len(puzzle)):
+        for col in range(0, len(puzzle[0])):
+            if puzzle[row][col][0] == 0:
+                return False
+    return True
+
+def solveSudoku(testPuzzle):
+        possible = []
+        for l in testPuzzle:
+            nextL = []
+            for x in l:
+                if x == 0:
+                    nextL = nextL + [[x, range(1, 10)]]
+                else:
+                    nextL = nextL + [[x, []]]
+            possible = possible + [nextL]
+
+        possible = rowColSq(possible)
+        if not doneSudoku(possible):
+            #while not doneSudoku(possible):
+            for reps in range(0, 3):
+                possible = makeGuess(possible)
+                possible = numElim(possible)
+                possible = numElimByRow(possible)
+                possible = numElimByCol(possible)
+
+        print "SUCCESS"
+        return possible
+
+def euler96():
+    l = [[[0,0,3,0,2,0,6,0,0],
+    [9,0,0,3,0,5,0,0,1],
+    [0,0,1,8,0,6,4,0,0],
+    [0,0,8,1,0,2,9,0,0],
+    [7,0,0,0,0,0,0,0,8],
+    [0,0,6,7,0,8,2,0,0],
+    [0,0,2,6,0,9,5,0,0],
+    [8,0,0,2,0,3,0,0,9],
+    [0,0,5,0,1,0,3,0,0]],
+    [[2,0,0,0,8,0,3,0,0],
+    [0,6,0,0,7,0,0,8,4],
+    [0,3,0,5,0,0,2,0,9],
+    [0,0,0,1,0,5,4,0,8],
+    [0,0,0,0,0,0,0,0,0],
+    [4,0,2,7,0,6,0,0,0],
+    [3,0,1,0,0,7,0,4,0],
+    [7,2,0,0,4,0,0,6,0],
+    [0,0,4,0,1,0,0,0,3]],
+    [[0,0,0,0,0,0,9,0,7],
+    [0,0,0,4,2,0,1,8,0],
+    [0,0,0,7,0,5,0,2,6],
+    [1,0,0,9,0,4,0,0,0],
+    [0,5,0,0,0,0,0,4,0],
+    [0,0,0,5,0,7,0,0,9],
+    [9,2,0,1,0,8,0,0,0],
+    [0,3,4,0,5,9,0,0,0],
+    [5,0,7,0,0,0,0,0,0]],
+    [[0,3,0,0,5,0,0,4,0],
+    [0,0,8,0,1,0,5,0,0],
+    [4,6,0,0,0,0,0,1,2],
+    [0,7,0,5,0,2,0,8,0],
+    [0,0,0,6,0,3,0,0,0],
+    [0,4,0,1,0,9,0,3,0],
+    [2,5,0,0,0,0,0,9,8],
+    [0,0,1,0,2,0,6,0,0],
+    [0,8,0,0,6,0,0,2,0]],
+    [[0,2,0,8,1,0,7,4,0],
+    [7,0,0,0,0,3,1,0,0],
+    [0,9,0,0,0,2,8,0,5],
+    [0,0,9,0,4,0,0,8,7],
+    [4,0,0,2,0,8,0,0,3],
+    [1,6,0,0,3,0,2,0,0],
+    [3,0,2,7,0,0,0,6,0],
+    [0,0,5,6,0,0,0,0,8],
+    [0,7,6,0,5,1,0,9,0]],
+    [[1,0,0,9,2,0,0,0,0],
+    [5,2,4,0,1,0,0,0,0],
+    [0,0,0,0,0,0,0,7,0],
+    [0,5,0,0,0,8,1,0,2],
+    [0,0,0,0,0,0,0,0,0],
+    [4,0,2,7,0,0,0,9,0],
+    [0,6,0,0,0,0,0,0,0],
+    [0,0,0,0,3,0,9,4,5],
+    [0,0,0,0,7,1,0,0,6]],
+    [[0,4,3,0,8,0,2,5,0],
+    [6,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,1,0,9,4],
+    [9,0,0,0,0,4,0,7,0],
+    [0,0,0,6,0,8,0,0,0],
+    [0,1,0,2,0,0,0,0,3],
+    [8,2,0,5,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,5],
+    [0,3,4,0,9,0,7,1,0]],
+    [[4,8,0,0,0,6,9,0,2],
+    [0,0,2,0,0,8,0,0,1],
+    [9,0,0,3,7,0,0,6,0],
+    [8,4,0,0,1,0,2,0,0],
+    [0,0,3,7,0,4,1,0,0],
+    [0,0,1,0,6,0,0,4,9],
+    [0,2,0,0,8,5,0,0,7],
+    [7,0,0,9,0,0,6,0,0],
+    [6,0,9,2,0,0,0,1,8]],
+    [[0,0,0,9,0,0,0,0,2],
+    [0,5,0,1,2,3,4,0,0],
+    [0,3,0,0,0,0,1,6,0],
+    [9,0,8,0,0,0,0,0,0],
+    [0,7,0,0,0,0,0,9,0],
+    [0,0,0,0,0,0,2,0,5],
+    [0,9,1,0,0,0,0,5,0],
+    [0,0,7,4,3,9,0,2,0],
+    [4,0,0,0,0,7,0,0,0]],
+    [[0,0,1,9,0,0,0,0,3],
+    [9,0,0,7,0,0,1,6,0],
+    [0,3,0,0,0,5,0,0,7],
+    [0,5,0,0,0,0,0,0,9],
+    [0,0,4,3,0,2,6,0,0],
+    [2,0,0,0,0,0,0,7,0],
+    [6,0,0,1,0,0,0,3,0],
+    [0,4,2,0,0,7,0,0,6],
+    [5,0,0,0,0,6,8,0,0]],
+    [[0,0,0,1,2,5,4,0,0],
+    [0,0,8,4,0,0,0,0,0],
+    [4,2,0,8,0,0,0,0,0],
+    [0,3,0,0,0,0,0,9,5],
+    [0,6,0,9,0,2,0,1,0],
+    [5,1,0,0,0,0,0,6,0],
+    [0,0,0,0,0,3,0,4,9],
+    [0,0,0,0,0,7,2,0,0],
+    [0,0,1,2,9,8,0,0,0]],
+    [[0,6,2,3,4,0,7,5,0],
+    [1,0,0,0,0,5,6,0,0],
+    [5,7,0,0,0,0,0,4,0],
+    [0,0,0,0,9,4,8,0,0],
+    [4,0,0,0,0,0,0,0,6],
+    [0,0,5,8,3,0,0,0,0],
+    [0,3,0,0,0,0,0,9,1],
+    [0,0,6,4,0,0,0,0,7],
+    [0,5,9,0,8,3,2,6,0]],
+    [[3,0,0,0,0,0,0,0,0],
+    [0,0,5,0,0,9,0,0,0],
+    [2,0,0,5,0,4,0,0,0],
+    [0,2,0,0,0,0,7,0,0],
+    [1,6,0,0,0,0,0,5,8],
+    [7,0,4,3,1,0,6,0,0],
+    [0,0,0,8,9,0,1,0,0],
+    [0,0,0,0,6,7,0,8,0],
+    [0,0,0,0,0,5,4,3,7]],
+    [[6,3,0,0,0,0,0,0,0],
+    [0,0,0,5,0,0,0,0,8],
+    [0,0,5,6,7,4,0,0,0],
+    [0,0,0,0,2,0,0,0,0],
+    [0,0,3,4,0,1,0,2,0],
+    [0,0,0,0,0,0,3,4,5],
+    [0,0,0,0,0,7,0,0,4],
+    [0,8,0,3,0,0,9,0,2],
+    [9,4,7,1,0,0,0,8,0]],
+    [[0,0,0,0,2,0,0,4,0],
+    [0,0,8,0,3,5,0,0,0],
+    [0,0,0,0,7,0,6,0,2],
+    [0,3,1,0,4,6,9,7,0],
+    [2,0,0,0,0,0,0,0,0],
+    [0,0,0,5,0,1,2,0,3],
+    [0,4,9,0,0,0,7,3,0],
+    [0,0,0,0,0,0,0,1,0],
+    [8,0,0,0,0,4,0,0,0]],
+    [[3,6,1,0,2,5,9,0,0],
+    [0,8,0,9,6,0,0,1,0],
+    [4,0,0,0,0,0,0,5,7],
+    [0,0,8,0,0,0,4,7,1],
+    [0,0,0,6,0,3,0,0,0],
+    [2,5,9,0,0,0,8,0,0],
+    [7,4,0,0,0,0,0,0,5],
+    [0,2,0,0,1,8,0,6,0],
+    [0,0,5,4,7,0,3,2,9]],
+    [[0,5,0,8,0,7,0,2,0],
+    [6,0,0,0,1,0,0,9,0],
+    [7,0,2,5,4,0,0,0,6],
+    [0,7,0,0,2,0,3,0,1],
+    [5,0,4,0,0,0,9,0,8],
+    [1,0,3,0,8,0,0,7,0],
+    [9,0,0,0,7,6,2,0,5],
+    [0,6,0,0,9,0,0,0,3],
+    [0,8,0,1,0,3,0,4,0]],
+    [[0,8,0,0,0,5,0,0,0],
+    [0,0,0,0,0,3,4,5,7],
+    [0,0,0,0,7,0,8,0,9],
+    [0,6,0,4,0,0,9,0,3],
+    [0,0,7,0,1,0,5,0,0],
+    [4,0,8,0,0,7,0,2,0],
+    [9,0,1,0,2,0,0,0,0],
+    [8,4,2,3,0,0,0,0,0],
+    [0,0,0,1,0,0,0,8,0]],
+    [[0,0,3,5,0,2,9,0,0],
+    [0,0,0,0,4,0,0,0,0],
+    [1,0,6,0,0,0,3,0,5],
+    [9,0,0,2,5,1,0,0,8],
+    [0,7,0,4,0,8,0,3,0],
+    [8,0,0,7,6,3,0,0,1],
+    [3,0,8,0,0,0,1,0,4],
+    [0,0,0,0,2,0,0,0,0],
+    [0,0,5,1,0,4,8,0,0]],
+    [[0,0,0,0,0,0,0,0,0],
+    [0,0,9,8,0,5,1,0,0],
+    [0,5,1,9,0,7,4,2,0],
+    [2,9,0,4,0,1,0,6,5],
+    [0,0,0,0,0,0,0,0,0],
+    [1,4,0,5,0,8,0,9,3],
+    [0,2,6,7,0,9,5,8,0],
+    [0,0,5,1,0,3,6,0,0],
+    [0,0,0,0,0,0,0,0,0]],
+    [[0,2,0,0,3,0,0,9,0],
+    [0,0,0,9,0,7,0,0,0],
+    [9,0,0,2,0,8,0,0,5],
+    [0,0,4,8,0,6,5,0,0],
+    [6,0,7,0,0,0,2,0,8],
+    [0,0,3,1,0,2,9,0,0],
+    [8,0,0,6,0,5,0,0,7],
+    [0,0,0,3,0,9,0,0,0],
+    [0,3,0,0,2,0,0,5,0]],
+    [[0,0,5,0,0,0,0,0,6],
+    [0,7,0,0,0,9,0,2,0],
+    [0,0,0,5,0,0,1,0,7],
+    [8,0,4,1,5,0,0,0,0],
+    [0,0,0,8,0,3,0,0,0],
+    [0,0,0,0,9,2,8,0,5],
+    [9,0,7,0,0,6,0,0,0],
+    [0,3,0,4,0,0,0,1,0],
+    [2,0,0,0,0,0,6,0,0]],
+    [[0,4,0,0,0,0,0,5,0],
+    [0,0,1,9,4,3,6,0,0],
+    [0,0,9,0,0,0,3,0,0],
+    [6,0,0,0,5,0,0,0,2],
+    [1,0,3,0,0,0,5,0,6],
+    [8,0,0,0,2,0,0,0,7],
+    [0,0,5,0,0,0,2,0,0],
+    [0,0,2,4,3,6,7,0,0],
+    [0,3,0,0,0,0,0,4,0]],
+    [[0,0,4,0,0,0,0,0,0],
+    [0,0,0,0,3,0,0,0,2],
+    [3,9,0,7,0,0,0,8,0],
+    [4,0,0,0,0,9,0,0,1],
+    [2,0,9,8,0,1,3,0,7],
+    [6,0,0,2,0,0,0,0,8],
+    [0,1,0,0,0,8,0,5,3],
+    [9,0,0,0,4,0,0,0,0],
+    [0,0,0,0,0,0,8,0,0]],
+    [[3,6,0,0,2,0,0,8,9],
+    [0,0,0,3,6,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [8,0,3,0,0,0,6,0,2],
+    [4,0,0,6,0,3,0,0,7],
+    [6,0,7,0,0,0,1,0,8],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,4,1,8,0,0,0],
+    [9,7,0,0,3,0,0,1,4]],
+    [[5,0,0,4,0,0,0,6,0],
+    [0,0,9,0,0,0,8,0,0],
+    [6,4,0,0,2,0,0,0,0],
+    [0,0,0,0,0,1,0,0,8],
+    [2,0,8,0,0,0,5,0,1],
+    [7,0,0,5,0,0,0,0,0],
+    [0,0,0,0,9,0,0,8,4],
+    [0,0,3,0,0,0,6,0,0],
+    [0,6,0,0,0,3,0,0,2]],
+    [[0,0,7,2,5,6,4,0,0],
+    [4,0,0,0,0,0,0,0,5],
+    [0,1,0,0,3,0,0,6,0],
+    [0,0,0,5,0,8,0,0,0],
+    [0,0,8,0,6,0,2,0,0],
+    [0,0,0,1,0,7,0,0,0],
+    [0,3,0,0,7,0,0,9,0],
+    [2,0,0,0,0,0,0,0,4],
+    [0,0,6,3,1,2,7,0,0]],
+    [[0,0,0,0,0,0,0,0,0],
+    [0,7,9,0,5,0,1,8,0],
+    [8,0,0,0,0,0,0,0,7],
+    [0,0,7,3,0,6,8,0,0],
+    [4,5,0,7,0,8,0,9,6],
+    [0,0,3,5,0,2,7,0,0],
+    [7,0,0,0,0,0,0,0,5],
+    [0,1,6,0,3,0,4,2,0],
+    [0,0,0,0,0,0,0,0,0]],
+    [[0,3,0,0,0,0,0,8,0],
+    [0,0,9,0,0,0,5,0,0],
+    [0,0,7,5,0,9,2,0,0],
+    [7,0,0,1,0,5,0,0,8],
+    [0,2,0,0,9,0,0,3,0],
+    [9,0,0,4,0,2,0,0,1],
+    [0,0,4,2,0,7,1,0,0],
+    [0,0,2,0,0,0,8,0,0],
+    [0,7,0,0,0,0,0,9,0]],
+    [[2,0,0,1,7,0,6,0,3],
+    [0,5,0,0,0,0,1,0,0],
+    [0,0,0,0,0,6,0,7,9],
+    [0,0,0,0,4,0,7,0,0],
+    [0,0,0,8,0,1,0,0,0],
+    [0,0,9,0,5,0,0,0,0],
+    [3,1,0,4,0,0,0,0,0],
+    [0,0,5,0,0,0,0,6,0],
+    [9,0,6,0,3,7,0,0,2]],
+    [[0,0,0,0,0,0,0,8,0],
+    [8,0,0,7,0,1,0,4,0],
+    [0,4,0,0,2,0,0,3,0],
+    [3,7,4,0,0,0,9,0,0],
+    [0,0,0,0,3,0,0,0,0],
+    [0,0,5,0,0,0,3,2,1],
+    [0,1,0,0,6,0,0,5,0],
+    [0,5,0,8,0,2,0,0,6],
+    [0,8,0,0,0,0,0,0,0]],
+    [[0,0,0,0,0,0,0,8,5],
+    [0,0,0,2,1,0,0,0,9],
+    [9,6,0,0,8,0,1,0,0],
+    [5,0,0,8,0,0,0,1,6],
+    [0,0,0,0,0,0,0,0,0],
+    [8,9,0,0,0,6,0,0,7],
+    [0,0,9,0,7,0,0,5,2],
+    [3,0,0,0,5,4,0,0,0],
+    [4,8,0,0,0,0,0,0,0]],
+    [[6,0,8,0,7,0,5,0,2],
+    [0,5,0,6,0,8,0,7,0],
+    [0,0,2,0,0,0,3,0,0],
+    [5,0,0,0,9,0,0,0,6],
+    [0,4,0,3,0,2,0,5,0],
+    [8,0,0,0,5,0,0,0,3],
+    [0,0,5,0,0,0,2,0,0],
+    [0,1,0,7,0,4,0,9,0],
+    [4,0,9,0,6,0,7,0,1]],
+    [[0,5,0,0,1,0,0,4,0],
+    [1,0,7,0,0,0,6,0,2],
+    [0,0,0,9,0,5,0,0,0],
+    [2,0,8,0,3,0,5,0,1],
+    [0,4,0,0,7,0,0,2,0],
+    [9,0,1,0,8,0,4,0,6],
+    [0,0,0,4,0,1,0,0,0],
+    [3,0,4,0,0,0,7,0,9],
+    [0,2,0,0,6,0,0,1,0]],
+    [[0,5,3,0,0,0,7,9,0],
+    [0,0,9,7,5,3,4,0,0],
+    [1,0,0,0,0,0,0,0,2],
+    [0,9,0,0,8,0,0,1,0],
+    [0,0,0,9,0,7,0,0,0],
+    [0,8,0,0,3,0,0,7,0],
+    [5,0,0,0,0,0,0,0,3],
+    [0,0,7,6,4,1,2,0,0],
+    [0,6,1,0,0,0,9,4,0]],
+    [[0,0,6,0,8,0,3,0,0],
+    [0,4,9,0,7,0,2,5,0],
+    [0,0,0,4,0,5,0,0,0],
+    [6,0,0,3,1,7,0,0,4],
+    [0,0,7,0,0,0,8,0,0],
+    [1,0,0,8,2,6,0,0,9],
+    [0,0,0,7,0,2,0,0,0],
+    [0,7,5,0,4,0,1,9,0],
+    [0,0,3,0,9,0,6,0,0]],
+    [[0,0,5,0,8,0,7,0,0],
+    [7,0,0,2,0,4,0,0,5],
+    [3,2,0,0,0,0,0,8,4],
+    [0,6,0,1,0,5,0,4,0],
+    [0,0,8,0,0,0,5,0,0],
+    [0,7,0,8,0,3,0,1,0],
+    [4,5,0,0,0,0,0,9,1],
+    [6,0,0,5,0,8,0,0,7],
+    [0,0,3,0,1,0,6,0,0]],
+    [[0,0,0,9,0,0,8,0,0],
+    [1,2,8,0,0,6,4,0,0],
+    [0,7,0,8,0,0,0,6,0],
+    [8,0,0,4,3,0,0,0,7],
+    [5,0,0,0,0,0,0,0,9],
+    [6,0,0,0,7,9,0,0,8],
+    [0,9,0,0,0,4,0,1,0],
+    [0,0,3,6,0,0,2,8,4],
+    [0,0,1,0,0,7,0,0,0]],
+    [[0,0,0,0,8,0,0,0,0],
+    [2,7,0,0,0,0,0,5,4],
+    [0,9,5,0,0,0,8,1,0],
+    [0,0,9,8,0,6,4,0,0],
+    [0,2,0,4,0,3,0,6,0],
+    [0,0,6,9,0,5,1,0,0],
+    [0,1,7,0,0,0,6,2,0],
+    [4,6,0,0,0,0,0,3,8],
+    [0,0,0,0,9,0,0,0,0]],
+    [[0,0,0,6,0,2,0,0,0],
+    [4,0,0,0,5,0,0,0,1],
+    [0,8,5,0,1,0,6,2,0],
+    [0,3,8,2,0,6,7,1,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,1,9,4,0,7,3,5,0],
+    [0,2,6,0,4,0,5,3,0],
+    [9,0,0,0,2,0,0,0,7],
+    [0,0,0,8,0,9,0,0,0]],
+    [[0,0,0,9,0,0,0,0,2],
+    [0,5,0,1,2,3,4,0,0],
+    [0,3,0,0,0,0,1,6,0],
+    [9,0,8,0,0,0,0,0,0],
+    [0,7,0,0,0,0,0,9,0],
+    [0,0,0,0,0,0,2,0,5],
+    [0,9,1,0,0,0,0,5,0],
+    [0,0,7,4,3,9,0,2,0],
+    [4,0,0,0,0,7,0,0,0]],
+    [[3,8,0,0,0,0,0,0,0],
+    [0,0,0,4,0,0,7,8,5],
+    [0,0,9,0,2,0,3,0,0],
+    [0,6,0,0,9,0,0,0,0],
+    [8,0,0,3,0,2,0,0,9],
+    [0,0,0,0,4,0,0,7,0],
+    [0,0,1,0,7,0,5,0,0],
+    [4,9,5,0,0,6,0,0,0],
+    [0,0,0,0,0,0,0,9,2]],
+    [[0,0,0,1,5,8,0,0,0],
+    [0,0,2,0,6,0,8,0,0],
+    [0,3,0,0,0,0,0,4,0],
+    [0,2,7,0,3,0,5,1,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,4,6,0,8,0,7,9,0],
+    [0,5,0,0,0,0,0,8,0],
+    [0,0,4,0,7,0,1,0,0],
+    [0,0,0,3,2,5,0,0,0]],
+    [[0,1,0,5,0,0,2,0,0],
+    [9,0,0,0,0,1,0,0,0],
+    [0,0,2,0,0,8,0,3,0],
+    [5,0,0,0,3,0,0,0,7],
+    [0,0,8,0,0,0,5,0,0],
+    [6,0,0,0,8,0,0,0,4],
+    [0,4,0,1,0,0,7,0,0],
+    [0,0,0,7,0,0,0,0,6],
+    [0,0,3,0,0,4,0,5,0]],
+    [[0,8,0,0,0,0,0,4,0],
+    [0,0,0,4,6,9,0,0,0],
+    [4,0,0,0,0,0,0,0,7],
+    [0,0,5,9,0,4,6,0,0],
+    [0,7,0,6,0,8,0,3,0],
+    [0,0,8,5,0,2,1,0,0],
+    [9,0,0,0,0,0,0,0,5],
+    [0,0,0,7,8,1,0,0,0],
+    [0,6,0,0,0,0,0,1,0]],
+    [[9,0,4,2,0,0,0,0,7],
+    [0,1,0,0,0,0,0,0,0],
+    [0,0,0,7,0,6,5,0,0],
+    [0,0,0,8,0,0,0,9,0],
+    [0,2,0,9,0,4,0,6,0],
+    [0,4,0,0,0,2,0,0,0],
+    [0,0,1,6,0,7,0,0,0],
+    [0,0,0,0,0,0,0,3,0],
+    [3,0,0,0,0,5,7,0,2]],
+    [[0,0,0,7,0,0,8,0,0],
+    [0,0,6,0,0,0,0,3,1],
+    [0,4,0,0,0,2,0,0,0],
+    [0,2,4,0,7,0,0,0,0],
+    [0,1,0,0,3,0,0,8,0],
+    [0,0,0,0,6,0,2,9,0],
+    [0,0,0,8,0,0,0,7,0],
+    [8,6,0,0,0,0,5,0,0],
+    [0,0,2,0,0,6,0,0,0]],
+    [[0,0,1,0,0,7,0,9,0],
+    [5,9,0,0,8,0,0,0,1],
+    [0,3,0,0,0,0,0,8,0],
+    [0,0,0,0,0,5,8,0,0],
+    [0,5,0,0,6,0,0,2,0],
+    [0,0,4,1,0,0,0,0,0],
+    [0,8,0,0,0,0,0,3,0],
+    [1,0,0,0,2,0,0,7,9],
+    [0,2,0,7,0,0,4,0,0]],
+    [[0,0,0,0,0,3,0,1,7],
+    [0,1,5,0,0,9,0,0,8],
+    [0,6,0,0,0,0,0,0,0],
+    [1,0,0,0,0,7,0,0,0],
+    [0,0,9,0,0,0,2,0,0],
+    [0,0,0,5,0,0,0,0,4],
+    [0,0,0,0,0,0,0,2,0],
+    [5,0,0,6,0,0,3,4,0],
+    [3,4,0,2,0,0,0,0,0]],
+    [[3,0,0,2,0,0,0,0,0],
+    [0,0,0,1,0,7,0,0,0],
+    [7,0,6,0,3,0,5,0,0],
+    [0,7,0,0,0,9,0,8,0],
+    [9,0,0,0,2,0,0,0,4],
+    [0,1,0,8,0,0,0,5,0],
+    [0,0,9,0,4,0,3,0,1],
+    [0,0,0,7,0,2,0,0,0],
+    [0,0,0,0,0,8,0,0,6]]]
+
+    currSum = 0
+    count = 0
+
+    test = l[48]
+    return solveSudoku(test)
+
+    #for x in range(0, len(l)):
+        #if x != 46 and x != 48:
+            #print "current count is"
+            #print x
+            #a = solveSudoku(l[x])
+            #currSum = currSum + int(str(a[0][0][0]) + str(a[0][1][0]) + str(a[0][2][0]))
+    #return currSum
+
+
+def countNumBouncy(currDig, n):#based on the number of digits
+    if n == 1:
+        return 10 - currDig
+    else:
+        currSum = 0
+        for x in range(currDig, 10):
+            currSum = currSum + countNumBouncy(x, n - 1)
+        return currSum
+
 
