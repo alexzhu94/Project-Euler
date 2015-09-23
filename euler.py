@@ -3234,11 +3234,8 @@ def calcSumX2D(l,a,b,y):
         currSum = currSum + l[x][y]
     return currSum
 
-def euler100():
-
-    return [(a,b) for a in range(1,10000) for b in range(1,10000) if (a+b)*(a+b-1) == 2*a*(a-1)]
-
-def isPalindrome(s):
+def isPalindrome(n):
+    s = str(n)
     if len(s) == 0 or len(s) == 1:
         return True
     elif s[0] != s[len(s) - 1]:
@@ -3255,15 +3252,15 @@ def findLimit():
     return -1
 
 def euler125():
-    l = [x**2 for x in range(1, 7073)]
-    curr = []
-    for x in range( 0, len(l)) :
-        for a in range(x + 2, len(l)):
-            currSum = sumList(l[x:a])
-            if currSum < 10**8 and isPalindrome(str(currSum)):
-                curr = curr + [currSum]
-    theL = list(set([x for x in curr if x < 10**8]))
-    return sumList(theL)
+    sumSquares = [(i*(2*i+1)*(i+1))/6 for i in range(0, 4000)]
+    #print sumSquares
+    diffs = set([sumSquares[j] - sumSquares[i] for i in range(0, len(sumSquares) - 2) for j in range(i + 2, len(sumSquares))])
+    pals = [i for i in diffs if isPalindrome(i)]
+    good = [ i for i in pals if i < 10**8]
+    print len(good)
+    return sumList(good)
+
+
 
 def isHTPandig(n):
     l = [int(i) for i in str(n)]
@@ -4622,6 +4619,7 @@ def isDigPerm(a,b):
     return l1 == l2
 
 def phi(n, primes):
+    #primes = [x for x in primes if x <= n]
     if n in primes:
         return n-1
     factors = getPrimeFactors(n, primes)
@@ -5206,6 +5204,9 @@ def euler51():
             l1 = l1 + [[x]]
     return l1
 
+def getCol(l, i):#because column needs a special method for 2 d lists
+    return [row[i] for row in l]
+
 def rowElim(puzzle):
     for i in range(0, len(puzzle)):
         x = puzzle[i]
@@ -5369,6 +5370,7 @@ def verifySudoku(puzzle):#false if there's a contradiction
                     if a != 0:
                         crossOut = crossOut + [a]
             if len(set(crossOut)) != len(crossOut):
+                print (sqRow, sqCol)
                 retVal = False
 
     for i in range(0, len(puzzle)):
@@ -5378,6 +5380,8 @@ def verifySudoku(puzzle):#false if there's a contradiction
             if a != 0:
                 crossOut = crossOut + [a]
         if len(set(crossOut)) != len(crossOut):
+            print "row"
+            print i
             retVal = False
 
     for col in range(0, len(puzzle[0])):
@@ -5387,6 +5391,8 @@ def verifySudoku(puzzle):#false if there's a contradiction
             if a != 0:
                 crossOut = crossOut + [a]
         if len(set(crossOut)) != len(crossOut):
+            print "col"
+            print col
             retVal = False
 
     return retVal
@@ -5411,18 +5417,24 @@ def numGuessBySq(puzzle):
                         [a,b] = puzzle[x][y]
                         for m in l:
                             if m in b:
+                                #print (x,y)
+                                #print m
                                 clone = copy.deepcopy(puzzle)
                                 clone[x][y] = [m, []]
-                                clone = numElim(clone)
                                 clone = rowColSq(clone)
+                                clone = numElim(clone)
                                 #return clone
                                 if not verifySudoku(clone):
-                                    print (sqRow, sqCol)
                                     print (x,y)
+                                    print puzzle[sqRow][sqCol:sqCol + 3]
+                                    print puzzle[sqRow + 1][sqCol:sqCol + 3]
+                                    print puzzle[sqRow + 2][sqCol:sqCol + 3]
                                     print m
+                                    print puzzle[x][y]
                                     c = copy.deepcopy(b)
                                     c.remove(m)
                                     puzzle[x][y][1] = c
+                                    rowColSq(puzzle)
                                     numElim(puzzle)
                                     rowColSq(puzzle)
                                     return puzzle
@@ -5449,16 +5461,25 @@ def numGuessByRow(puzzle):
                         if m in b0:
                             guess = copy.deepcopy(puzzle)
                             guess[i][j] = [m,[]]
-                            guess = numElimByRow(guess)
                             guess = rowColSq(guess)
+                            guess = numElimByRow(guess)
                             if not verifySudoku(guess):
                                 print (i,j)
+                                print puzzle[i]
+                                print m
+                                print puzzle[i][j]
                                 c = copy.deepcopy(b0)
                                 c.remove(m)
                                 puzzle[i][j][1] = c
                                 puzzle = numElimByRow(puzzle)
                                 puzzle = rowColSq(puzzle)
+                                return puzzle
     return puzzle
+
+def printSquare(puzzle):
+    print puzzle[0][0:3]
+    print puzzle[1][0:3]
+    print puzzle[2][0:3]
 
 def numGuessByCol(puzzle):
     rowColSq(puzzle)
@@ -5482,10 +5503,13 @@ def numGuessByCol(puzzle):
                         if m in y:
                             guess = copy.deepcopy(puzzle)
                             guess[sameRow][col] = [m,[]]
-                            guess = numElimByCol(guess)
                             guess = rowColSq(guess)
+                            guess = numElimByCol(guess)
                             if not verifySudoku(guess):
                                 print (sameRow, col)
+                                print getCol(puzzle, col)
+                                print m
+                                print puzzle[sameRow][col]
                                 c = copy.deepcopy(y)
                                 c.remove(m)
                                 puzzle[sameRow][col][1] = c
@@ -6032,16 +6056,16 @@ def euler96():
     currSum = 0
     count = 0
 
-    test = l[48]
-    return solveSudoku(test)
+    #test = l[48]
+    #return solveSudoku(test)
 
-    #for x in range(0, len(l)):
-        #if x != 46 and x != 48:
-            #print "current count is"
-            #print x
-            #a = solveSudoku(l[x])
-            #currSum = currSum + int(str(a[0][0][0]) + str(a[0][1][0]) + str(a[0][2][0]))
-    #return currSum
+    for x in range(0, len(l)):
+        if x != 46 and x != 48:
+            print "current count is"
+            print x
+            a = solveSudoku(l[x])
+            currSum = currSum + int(str(a[0][0][0]) + str(a[0][1][0]) + str(a[0][2][0]))
+    return currSum
 
 
 def countNumBouncy(currDig, n):#based on the number of digits
@@ -6052,5 +6076,369 @@ def countNumBouncy(currDig, n):#based on the number of digits
         for x in range(currDig, 10):
             currSum = currSum + countNumBouncy(x, n - 1)
         return currSum
+
+def reverseAddOdd(n):
+    if n%10 == 0:
+        return False
+    l = [i for i in str(n)]
+    l.reverse()
+    rev = int(''.join(l))
+    print rev
+    new = n + rev
+    s = [int(i) for i in str(new)]
+    for x in s:
+        if x%2 != 1:
+            return False
+    return True
+
+def test145():
+    l = []
+    for n in range(1, 10000):
+        if reverseAddOdd(n):
+            l = l + [n]
+    return l
+
+def firstDigCO():
+    return set([(x,y) for x in range(1, 10) for y in range(1, 10) if x + y >= 10 and (x + y)%2 == 1])
+
+def firstDigNCO():
+    return set([(x,y) for x in range(1, 10) for y in range(1, 10) if x + y < 10 and (x + y)%2 == 1])
+
+def evenCO():
+    return set([(x,y) for x in range(0, 10) for y in range(0, 10) if x + y >= 10 and (x + y)%2 == 0])
+
+def oddCO():
+    return set([(x,y) for x in range(0, 10) for y in range(0, 10) if x + y >= 10 and (x + y)%2 == 1])
+
+def evenNCO():
+    return set([(x,y) for x in range(0, 10) for y in range(0, 10) if x + y < 10 and (x + y)%2 == 0])
+
+def oddNCO():
+    return set([(x,y) for x in range(0, 10) for y in range(0, 10) if x + y < 10 and (x + y)%2 == 1])
+
+def sameDigCO():
+    return set([x for x in range(0, 10) if x + x >= 10])
+
+def sameDigNCO():
+    return set([x for x in range(0, 10) if x + x < 10])
+
+
+def euler145():
+    #2 digit
+    firstNCO = len(firstDigNCO())
+    firstCO = len(firstDigCO())
+
+    evNCO = len(evenNCO())
+    oNCO = len(oddNCO())
+
+    sNCO = len(sameDigNCO())
+    sCO = len(sameDigCO())
+
+    oCO = len(oddCO())
+    evCO = len(evenCO())
+
+    #print firstNCO*firstNCO
+
+
+    twoDig = firstNCO
+    threeDig = firstCO*sNCO
+    fourDig = firstNCO*oNCO
+    sixDig =firstNCO*oNCO*oNCO
+    sevenDig = firstCO*evNCO*oCO*sNCO
+    eightDig = firstNCO*oNCO*oNCO*oNCO
+    print twoDig
+    print threeDig
+    print fourDig
+    print sixDig
+    print sevenDig
+    print eightDig
+
+    return twoDig + threeDig + fourDig + sixDig + sevenDig + eightDig
+
+def factors(n):
+    l = []
+    for x in range(1, int(n**0.5) + 1):
+        if n%x == 0:
+            l = l + [(x, n/x)]
+    return l
+
+def dicksonMethod(n):#method for generating integral pythagorean triples
+    triples = []
+    for r in range(2, n, 2):
+        l = factors(int(r**2)/2)
+        for (s,t) in l:
+            curr = (r + s, r + t, r + s + t)
+            if sumList(curr) <= 1500000:
+                triples = triples + [curr]
+    return triples
+
+def euclidMethod():#generates primitive integral pythagorean triples
+    triples = []
+    for m in range(2, 1225):
+        #print m
+        curr = []
+        if m%2 == 1:
+            for n in range(2, m, 2):
+                if fractions.gcd(m,n) == 1:
+                    msq = int(m**2)
+                    nsq = int(n**2)
+                    a = msq - nsq
+                    b = 2*m*n
+                    c = msq + nsq
+                    curr = curr + [(a,b,c)]
+                    #triples = triples + [(a,b,c)]
+            triples = triples + curr
+        else:
+            for n in range(1, m, 2):
+                if fractions.gcd(m,n) == 1:
+                    msq = int(m**2)
+                    nsq = int(n**2)
+                    a = msq - nsq
+                    b = 2*m*n
+                    c = msq + nsq
+                    curr = curr + [(a,b,c)]
+                    #triples = triples + [(a,b,c)]
+            triples = triples + curr
+    return triples
+
+def allTriples(x):
+    return [i*x for i in range(1, int(1500000/x))]
+
+def euler75():
+    l = euclidMethod()
+    l0 = [x for x in l if sumList(x) <= 1500000]
+    s1 = set(l0)
+    s2 = [sumList(x) for x in s1]
+    n = [tuple(allTriples(x)) for x in s2]
+    s3 = list(set(n))
+
+    final = []
+    bads = []
+    for x in range(0, len(s3)):
+        print x
+        toBeRemoved = [i for i in s3[ x ] if i in final]
+        final = final + list(s3[ x ])
+        bads = bads + toBeRemoved
+    map(final.remove, set(bads))
+    return final
+
+def test100():
+    l = []
+    for x in range(10, 10000):
+        for n in range(x/2 + 1, x):
+            if x**2 - x == 2*n**2 - n :
+                l = l + [(x, 2*n)]
+            elif x**2 - x == 2*n**2 + n:
+                l = l + [(x, 2*n + 1)]
+    return l
+
+
+def increasing(num, n):
+    if n == 0:
+        return [(int(num))]
+    else:
+        l = range(1, 10)
+        if len(num) > 0:
+            l = [x for x in range(0, 10) if x >= int(num[len(num) - 1])]
+        curr = []
+        for x in l:
+            curr = curr + increasing(num + str(x), n-1)
+        return curr
+
+
+def decreasing(num, n):
+    if n == 0:
+        return [(int(num))]
+    else:
+        l = range(1, 10)
+        if len(num) > 0:
+            l = [x for x in range(0, 10) if x <= int(num[len(num) - 1])]
+        curr = []
+        for x in l:
+            curr = curr + decreasing(num + str(x), n-1)
+        return curr
+
+
+def increasingNum(firstDig, prevDig, n):
+    if n == 0:
+        return 1
+    else:
+        l = range(1, 10)
+        if not firstDig:
+            l = [x for x in range(0, 10) if x >= prevDig]
+        curr = 0
+        for x in l:
+            curr = curr + increasingNum(False, x, n-1)
+        return curr
+
+def decreasingNum(firstDig, prevDig, n):
+    if n == 0:
+        return 1
+    else:
+        l = range(1, 10)
+        if not firstDig:
+            l = [x for x in range(0, 10) if x <= prevDig]
+        curr = 0
+        for x in l:
+            curr = curr + decreasingNum(False, x, n-1)
+        return curr
+
+def increasingNumDP( firstDig, prevDig, n, d):
+    if n == 0:
+        return 1
+    else:
+        #if (firstDig, prevDig, n) in d.keys():
+            #return d[(firstDig, prevDig, n)]
+
+        l = range(1, 10)
+        if not firstDig:
+            l = [x for x in range(0, 10) if x >= prevDig]
+        curr = 0
+        for x in l:
+            if (False, x, n-1) in d.keys():
+                curr = curr + d[(False, x, n-1) ]
+            else:
+                num = increasingNumDP(False, x, n-1, d)
+                #d[(firstDig, prevDig, n)] = num
+                curr = curr + num
+                d[(False, x, n-1)] = num
+        return curr
+
+def decreasingNumDP( firstDig, prevDig, n, d):
+    if n == 0:
+        return 1
+    else:
+        if (firstDig, prevDig, n) in d.keys():
+            return d[(firstDig, prevDig, n)]
+
+        l = range(1, 10)
+        if not firstDig:
+            l = [x for x in range(0, 10) if x <= prevDig]
+        curr = 0
+        for x in l:
+            if (False, x, n-1) in d.keys():
+                curr = curr + d[(False, x, n-1)]
+            else:
+                num = decreasingNumDP(False, x, n-1, d)
+                d[(False, x, n-1)] = num
+                curr = curr + num
+        return curr
+
+
+
+def testDecInc113():
+    n0 = increasingNumDP(True, 0, 1, {}) + increasingNumDP(True, 0, 2, {}) + increasingNumDP(True, 0, 3, {}) + increasingNumDP(True, 0, 4, {}) + increasingNumDP(True, 0, 5, {}) + increasingNumDP(True, 0, 6, {}) + increasingNumDP(True, 0, 7, {}) + increasingNumDP(True, 0, 8, {}) + increasingNumDP(True, 0, 9, {}) + increasingNumDP(True, 0, 10, {})
+    n1 = decreasingNumDP(True, 0, 1, {}) + decreasingNumDP(True, 0, 2, {}) + decreasingNumDP(True, 0, 3, {}) + decreasingNumDP(True, 0, 4, {}) + decreasingNumDP(True, 0, 5, {}) + decreasingNumDP(True, 0, 6, {}) + decreasingNumDP(True, 0, 7, {}) + decreasingNumDP(True, 0, 8, {}) + decreasingNumDP(True, 0, 9, {}) + decreasingNumDP(True, 0, 10, {})
+
+    return n0 + n1 - 10*9
+    #return n0 + n1 - 9*6
+
+def euler113():
+    curr = 0
+    for x in range(1, 101):
+        print x
+        curr = curr + increasingNumDP(True, 0, x, {})
+        curr = curr + decreasingNumDP(True, 0, x, {})
+    return curr - 9*100
+
+def isPermutation(a,b):
+    a1 = [x for x in str(a)]
+    b1 = [x for x in str(b)]
+    a1.sort()
+    b1.sort()
+    return a1 == b1
+
+def test70():
+    p = sieveOfE(100000)
+    perms = []
+    for q in range(2, 100000):
+        print q
+        pi = phi(q, p)
+        if isPermutation(q, pi):
+            perms = perms + [(q, pi)]
+    return perms
+
+
+def tileArrange(numTiles, col, m, n):
+    if n < 0 or m < 0 or numTiles < 0:
+        return 0
+    if numTiles == 0 and m != 0:
+        return 1
+    if m == 0 and numTiles != 0:
+        return 1
+    else:
+        return tileArrange(numTiles - 1, col, m, n - col) + tileArrange(numTiles, col, m - 1, n - 1)
+
+def lookUpTiles((numTiles, col, m, n), d):
+    if n < 0 or m < 0 or numTiles < 0:
+        return 0
+    if (numTiles, col, m, n) in d.keys():
+        return d[(numTiles, col, m, n)]
+    else:
+        return -1
+
+def tileArrangeDP(numTiles, col, m, n, d):
+    if numTiles == 0 and m != 0:
+        return 1
+    if m == 0 and numTiles != 0:
+        return 1
+    else:
+        a1 = lookUpTiles((numTiles - 1, col, m, n - col), d )
+        a2 = lookUpTiles((numTiles, col, m - 1, n - 1), d )
+
+        if a1 != -1 and a2 != -1:
+            return a1 + a2
+        else:
+            if a1 == -1:
+                a1 = tileArrangeDP(numTiles - 1, col, m, n - col, d)
+                d[(numTiles - 1, col, m, n - col)] = a1
+            if a2 == -1:
+                a2 = tileArrangeDP(numTiles, col, m - 1, n - 1, d)
+                d[(numTiles, col, m - 1, n - 1)] = a2
+            return a1 + a2
+
+def tilesCover(n):
+    total = 0
+    for col in range(2,5):
+        possibleTiles = range(1, n/col + 1)
+        print possibleTiles
+        for numTiles in possibleTiles:
+            print (numTiles, col, n - numTiles*col, n)
+            total = total +  tileArrange(numTiles, col, n - numTiles*col, n)
+    return total
+
+def tilesCoverDP(n):
+    total = 0
+    for col in range(2,5):
+        possibleTiles = range(1, n/col + 1)
+        print possibleTiles
+        for numTiles in possibleTiles:
+            print (numTiles, col, n - numTiles*col, n)
+            total = total +  tileArrangeDP(numTiles, col, n - numTiles*col, n, {})
+    return total
+
+def euler116():
+    return tilesCoverDP(50)
+
+
+def tileArrange117(n, d):
+    if n < 0 :
+        return 0
+    if n == 0 :
+        return 1
+    else:
+        currSum = 0
+        for col in range(1,5):
+            if n - col in d.keys():
+                currSum = currSum + d[n - col]
+            else:
+                d[n - col] = tileArrange117(n - col, d)
+                currSum = currSum + d[n - col]
+        return currSum
+
+
+
+
+
 
 

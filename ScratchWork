@@ -132,3 +132,219 @@ based on heron's formula, we have that
 
 
 (3*n**2 + 2*n - 1) = 4*x**2
+
+
+
+EOEOO
+OOEOE
+
+EEOOO
+OOOEE
+
+28313
+31382
+
+ABCDE
+EDCBA
+
+ABCDEF
+FEDCBA
+
+ABC
+CBA
+
+if A + C < 10:
+    B + B will be even and this will never work
+
+if A + C > 10:
+    B + B will be even, but will be carried into and be odd, but B + B should not carry out
+
+
+ABCDEFGHI
+IHGFEDCBA
+
+8 digits
+7 digits
+6 digits
+4 digits
+3 digits
+2 digits
+
+4 digits
+
+ABCD
+DCBA
+
+if A + D > 10:
+    C + B must be even with NCO
+    and this will never work
+if A + D < 10:
+    C + B must be odd with NCO
+
+
+Suppose 8 digits
+
+ABCDEFGH
+HGFEDCBA
+
+A $\in$ {2,4,6,8}
+H $\in$ {1,3,5,7,9}
+
+if A + H > 10:
+    B + G < 10 and must be even
+    B + G $\in$ {2,4,6,8}
+    and there is no carry out from B + G
+
+    thus F + C must be odd and must have carry out, as C + F carries in to B + G
+
+    thus E + D must be even and must be NCO, which fails 
+
+if A + H < 10:
+    B + G must be odd and must not have carry out
+    $\implies$
+    C + F must be odd and must not have carry out
+    D + E must be odd and must not have carry out
+ 
+
+ABCDEF
+FEDCBA
+
+if A + F > 10:
+    E + B must be even and have no carry out
+    C + D must be odd and must have a carry out, except that is a contradiction
+
+thus A + F < 10
+     B + E must be odd with no carry out
+     C + D must be odd with no carry out
+
+
+
+ABCDE
+EDCBA
+
+if E + A > 10:
+    D + B must be even with no carry out
+    C + C must be even, and so will this will never work
+
+if E + A < 10:
+    D + B must be odd with no carry out
+    C + C will be even, and so this will never work
+
+ABCDEFG
+GFEDCBA
+
+if A + G > 10:
+    F + B must be even with no carry out
+    C + E must be odd with carry out
+    D + D must be even with no carry out
+
+if A + G < 10:
+    B + F must be odd with NCO 
+    E + C must be odd with NCO
+    D + D will be even and this will not work
+
+
+ABCDEFGHI
+IHGFEDCBA
+
+
+if A + I > 10:
+    H + B must be even with no carry out
+    C + G must be odd with carry out
+    D + F must be even with no carry out
+    E + E will be even and this will never work
+
+if A + I < 10:
+    H + B must be odd with no carry out
+    C + G must be odd with no carry out
+    F + D must be odd with no carry out
+    E + E will be even and this will never work
+
+
+
+a = m**2 - n**2, b = 2mn, c = m**2 + n**2
+
+(m**2 - n**2)**2 + (2mn)**2 = (m**2 + n**2)**2
+
+m**4 - 2m**2n**2 + n**4 + 4m**2n**2 = m**4 + 2m**2n**2 + n**4 
+
+and it works
+
+
+Euler 100
+
+Even
+
+
+x/2n * (x - 1)/(2n - 1) = 1/2
+
+(x(x-1))/(2n(2n-1)) = 1/2
+
+
+(x**2 - x)/(4n**2 - 2n) = 1/2
+
+(x**2 - x)/2*(2n**2 - n)  = 1/2
+
+x**2 - x = 2n**2 - n
+
+
+
+x/(2n + 1) * (x-1)/(2n) = 1/2
+
+
+(x*(x-1))/((2n + 1)(2n)) = 1/2
+
+
+(x**2 - x) / 2(2n**2 + n) = 1/2
+
+
+(x**2 - x) = 2n**2 + n 
+
+
+based on the number of digits, there should be a way to obtain the number of non bouncy numbers
+
+
+suppose 5 digits
+
+abcde
+
+
+99999
+88888
+88889
+88899
+88999
+89999
+
+
+Take the number of tiles and divide it by 2 (truncated) for red, 3 for green, and 4 for blue. Let these numbers be d_r, d_g, and d_b respectively. For d_r, take every number less than d_r, and figure out the remainder (mod) from dividing n by d_r*2, d_g*3, d_b*4. Label the mod m. We then have to figure out the number of ways to partition m among the d_r blocks.   
+
+
+......
+
+xx....
+.xx...
+..xx..
+...xx.
+....xx
+
+
+xxxx..
+xx.xx.
+xx..xx
+
+.xxxx.
+.xx.xx
+..xxxx
+
+
+I see a recursive way to do this where we require the number of tiles, and the number of tiles available, and we can consistently shift where we want the next tile to start at, from there it's just recursion. 
+
+
+
+
+
+x/(x + y) * (x - 1)/(x + y - 1) = 1/2
+
+
+x(x-1)/(x+y)*(x+y-1)
