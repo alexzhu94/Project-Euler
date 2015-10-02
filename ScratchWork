@@ -346,5 +346,153 @@ I see a recursive way to do this where we require the number of tiles, and the n
 
 x/(x + y) * (x - 1)/(x + y - 1) = 1/2
 
+(x*(x-1))/((x+y)*(x+y-1)) = 1/2
 
-x(x-1)/(x+y)*(x+y-1)
+2*(x*(x-1)) = ((x+y)*(x+y-1))
+
+
+2*(x**2 - x) = (x**2 + xy - x + xy + y**2 - y)
+
+2*x**2 - 2x = x**2 + 2xy - x - y + y**2
+
+
+x**2 - x = 2xy - y + y**2
+
+x**2 - x = y * (y + 2x - 1)  
+
+
+y = 1/2 x -- >NO
+
+
+y = 1/4x
+
+x**2 - x = 2x(1/4x) - 1/4x + 1/16 x**2
+
+x**2 - x = 9/16 x**2 - 1/4x
+
+x - 1 = 9/16x - 1/4
+
+7/16x = 3/4
+
+x = 48/28
+
+x = 12/7
+
+
+How about y = 1?
+
+
+x**2 - x = 2x - 1 + 1
+
+
+x**2 - x = 2x
+
+x - 1 = 2
+
+x = 3
+
+
+y = 2?
+
+x**2 - x = 4x - 2 + 4
+
+x**2 - x = 4x + 2
+
+x**2 - 5x - 2 = 0
+
+and there's no integral solution. 
+
+
+
+For a given value of x, can we determine whether this value of y is an integer?
+
+Well x**2 - x must have a divisor in y. 
+
+
+
+Now one thing I'm very curious about is the upper and lower bound on y. 
+
+
+
+
+Consider that we have a/b s.t. (a(a-1))/(b(b-1)) = 1/2.
+
+Thus we see that log_10(a(a-1))/(b(b-1)) = log_10(1/2) = -log_10(2) 
+
+
+log_10(a(a-1)) - log_10(b(b-1)) = -log_10(2)
+
+log_10(a) + log_10(a - 1) - (log_10(b) + log_10(b - 1))  = -log_10(2)
+
+
+So it occurs to me that with as the denominator gets bigger, the fraction will converge upon 0.5**0.5
+
+
+
+EV = 1 + 109/120*(0) + 11/120(-10)
+EV = 1 + 11/120(-10)
+
+
+Now how many ways can we get most blue?
+
+Probabilities on each of the turns of getting a blue, assuming 4 turns
+
+1/2, 1/3, 1/4, 1/5
+
+
+all blue: 
+
+1/2*1/3*1/4*1/5
+
+
+3 blue:
+
+1/2*1/3*1/4
+
+1/2*1/4*1/5
+
+1/2*1/3*1/5
+
+.
+.
+.
+
+
+
+
+1/x + 1/y 
+
+Suppose gcd(x,y) == 1
+and x,y > 1
+
+(x + y)/xy
+
+Suppose by contradiction that x+y | xy. $\implies$ xy = (x+y)z = xz + yz for some positive integer z. xy - xz = yz 
+
+
+x(y-z) = yz $\implies$ x | y or x | z
+
+if x|y then gcd(x,y) != 1, contradiction. 
+
+
+if x|z then z = qx for some positive integer q. 
+
+
+xy = (x + y)(qx)
+
+
+y = (x + y)q
+
+
+y - qy = qx
+
+
+since q is a positive integer > 1, this implies qx is negative, contradiction. 
+
+
+
+
+
+
+
+
