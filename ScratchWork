@@ -493,6 +493,438 @@ since q is a positive integer > 1, this implies qx is negative, contradiction.
 
 
 
+So what does it mean if the last few digits of 
+
+
+We have to have a sum less than 9 for every 3 digits in the 20 digit number.
+
+Now suppose the first digit in our 20 digit sequence was 8, then there is only 1 way to ensure that the sum of every 3 digits is less than 9, and that is in starting the number as 
+
+800
+
+Now we have 17 digits left with which to make choices on. 
+
+
+Now if we our place in the 20 digit number were not the first one, and we had say
+
+53x where x is where we have to make the decision, then we would have to check to make sure that the previous 2 digits sum to less than 9, as if they don't we can stop and return 0 right there, but if they do, then the range of numbers we can choose for x becomes only those that would make its sum less than 9. 
+
+
+Now in the absolute base case, we will be at the end of the number, and figure out how many numbers make sure that the last 3 digits sum to less than 9. 
+
+
+
+I had an idea, so it appears that in all fractions of the form 1/a + 1/b = 1/n, if we assume that b >= a, then I conjecture that b = mn for some integer m. If we take this to be the case, then we can see that 1/a = 1/n - 1/b, and hence we know that we will have a valid 1/a iff 1/n - 1/b has a numerator of 1.  
+
+
+Actually this conjecture is false, as we show with the following counterexample:
+
+1/10 + 1/15 = 3/30 + 2/30 = 5/30 = 1/6
+
+
+
+However, this idea that 1/n - 1/b = 1/a may have merit. 
+
+$\implies$ (b - n)/(nb) = 1/a
+
+
+Thus we see that either b - n == 1 or (b - n) | nb
+
+if b - n == 1 then clearly b = n + 1 and that is always a solution.  
+
+
+if (b-n) | nb $\implies$ nb = m*(b-n) for some integer m
+
+
+nb/(b-n) = m
+
+
+nb + mn = mb
+
+
+n(b+m) = mb
+
+
+
+b = n**2
+
+
+n**3 / (n**2 - n) 
+
+
+n**2 / (n - 1)
+
+
+b = 2n
+
+(2n - n) / 2n**2
+
+
+n / 2n**2
+
+
+Therefore, we see that b = n + 1 and b = 2n are always solutions. 
+
+
+
+b = n + 2
+
+
+(b - n)/(nb) == 2/n(n+2) 
+
+
+Therefore as long as n is divisible by 2, n + 2 is a solution 
+
+
+b = n + 3
+
+3 / n(n + 3)
+
+
+Thus as long as n is divisible by 3, then n + 3 is a solution. 
+
+
+b = n + 4
+
+4 / n(n + 4)
+
+
+If n is divisible by 2, then n + 4 is a solution
+
+
+b = n + 5
+
+5 / n(n+5)
+
+
+If n is divisible by 5, then n + 5 is a solution
+
+
+b = n + 6
+
+6/n(n+6)
+
+If n is divisible by 6, n + 6 is a solution
+
+
+b = n + 15
+
+15/n(n+15)
+
+
+
+b = n + 9
+
+
+9/n(n+9)
+
+
+b = n + 27
+
+27/(n(n+27))
+
+
+b = n + 36
+
+36/(n)(n + 36)
+
+
+b = n + 20
+
+20/(n)(n + 20)
+
+
+As long as n is divisible by 10, b = n + 20 is a solution. 
+
+
+b = n + 50
+
+50/(n)(n + 20)
+
+
+b = n + 256
+
+256/(n)(n + 256)
+
+
+As long as n is divisible by 16, then this will work
+
+
+I believe as long as n is divisible by 10, b = n + 50 will still be a solution. 
+
+
+
+The more distinct prime factors that n has, the more solutions it will have. 
+
+
+For any given prime factor, p, of n, I know that the solutions b = n + p and b = n + p**2 are valid. 
+
+i now also know that b = n + 1 and  b = 2n must be solutions. 
+
+
+Also, given that n is divisible by distinct primes p0 and p1, b = n + p0*p1, b = n + p0**2*p1, b = n + p0*p1**2 and b = n + (p0*p1)**2 are valid solutions. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7 colors. 10 balls of each color placed in an urn. We want the expected number of distinct colors in 20 randomly picked balls. 
+
+
+With 1 ball, we expect 1 distinct color. 
+
+With 2 balls, we expect 2 distinct colors with probability 60/69, and 1 distinct color with probability 9/69
+
+With 3 balls, we expect 1 distinct color with probability 1 * 9/69 * 8/68. We expect 2 distinct colors with probability 
+
+
+The idea is that we need to find the probabilities of 2 - 7 distinct colors in 20 balls, and then multiply each by the number of distinct colors each represents. 
+
+
+
+We have a number s.t. its square root is the inverse
+
+
+
+For a number n, we want to find the first number x < n-1 s.t. x**2 is congruent to 1 modulo n. 
+
+x**2 - 1 = qn for q in zeta. 
+
+
+
+x**2 = qn + 1
+
+
+x = n - 1 - y for positive integer y
+
+(n - 1 - y)**2 = qn + 1
+
+(n - (1 + y))(n - (1 + y))
+
+n**2 - n(1+y) - n(1+y) + (1+y)**2 = qn + 1
+
+
+n**2 - n(1+y) - n(1+y)  + y**2 + 2y + 1 = qn + 1
+
+
+
+smallest positive y s.t. n | y**2 + 2y
+
+
+
+
+
+What kinds of numbers can have square roots mod n?
+
+
+Well, if a number is less than the square root of n and greater than 1, then its square mod n cannot possible equal itself mod n. Thus we only have to look at numbers greater than the sqrt of n. 
+
+
+a**2 = a mod n
+
+
+a**2 - a = qn
+
+a(a-1) = qn
+
+n | a or n | a-1
+
+
+2x(2x + 1) = qn
+
+
+It appears that any number that only has a single prime factor will not have a modular square root. I'm not quite sure why. 
+
+
+Suppose n = p**g
+
+This would imply that p | 2x or p | 2x + 1
+
+
+
+
+
+
+Euler 407: 
+
+
+Supose p |\ 2x and p |\ 2x + 1, but p**g | 2x(2x + 1)
+
+then 2x(2x + 1) = p**g * y
+
+4x**2 + 2x = p**g * y
+
+Let the prime factorization of x be p0**a0 * p1**a1....pn**an, none of which are p. 
+
+Thus p |\ 2x. However, since 2x(2x + 1) = p**g * y, p**g must then divide 2x + 1. However, p**g |\ 2x + 1. A contradiction. 
+
+
+
+
+
+
+Euler 357: 
+
+
+3*2*5
+
+
+the thing about any d that divides 30 is that its prime factors must be some combination of 3 2 and 5. Thus d + 30/d. Now 30/d does not have to yield a prime number, but it does have to yield a number that is some combination of 3 2 or 5. 
+
+
+My strong suspicion is that all numbers that have this property must not have an exponent greater than 1 on any of their prime factors. 
+
+
+1, 2, 3, 5, 6, 10, 15, 30
+
+
+
+
+I figured out that all prime numbers greater than 2 will not fit this. Suppose we have a prime p >2. Then if we choose d = p, p + p / p = p + 1, which is even, and thus divisible by 2. Thus, there is no prime greater than 2 that will fit this. Now lets suppose that a number n has a prime p > 2 in its prime factorization. What happens then? Well, if we choose d = p, then we know that n = qp for some integer q, and thus p + n/p = p + q. Now, what matters is whether n is even or odd, as if it
+is odd, then p + q is even, and this cannot be prime. Now, I think we can say that if n must have 2 in its prime factorization if this is to work at all. Thus, I have lowered the search space to all the even numbers. Now, what? 
+
+
+Now suppose we have a number 2n. We know that if we choose d = 2, then 2 + n must be prime. This indicates to me that n can only contain 1 power of 2. Thus, we're looking at all numbers that contain only a single power of 2. So we know that n must only have odd primes in its factorization.
+
+
+Lets now take the number 6 for instance. 
+
+1,2,3,6
+
+1 + 6 = 7
+
+2 + 3 = 5
+
+3 + 2 = 5
+
+6 + 1 = 7
+
+
+
+
+Suppose we now take 10. 
+
+
+1,2,5,10
+
+
+1 + 10 = 11
+
+10 + 1 = 11
+
+
+2 + 5 = 7
+
+5 + 2 = 7
+
+
+
+
+Now lets try a number like 18 = 2 * 3**2
+
+
+1,2,3,6,9,18
+
+
+2 + 9 = 11
+
+3 + 6 = 9
+
+
+Doesn't work. 
+
+
+
+
+
+I'm beginning to suspect that you need not only a single power of 2, but a single power of any other prime as well. 
+
+
+
+
+34
+
+
+2 + 17 = 19
+
+
+46
+
+2 + 23 = 25, which is not prime. Thus that's not quite right as well. 
+
+
+
+
+I now suspect that we are looking for the primes p s.t. p + 2 is also prime. Thus, 23 would not work. 
+
+
+What if I take 102? 
+
+2 * 3 * 17
+
+
+1,2,3, 6, 17, 34, 51, 102
+
+
+
+Each pair of divisors needs to add up to a prime number. That much is clear, but I'm not quite sure how this is managed.....
+
+
+
+p + 2*p0*p1....*pn must be prime. and p > 2
+
+
+
+2 + p*p0*p1....*pn
+
+
+
+
+We definitely want all numbers n s.t. n + 2 is prime.
+
+
+
+Now what I know is that every number in this set needs to have only a single power of 2, and only a single power of any other prime. I can conceive of a way of solving this using a list of lists of prime numbers, where the number represented by each list is the product of all the numbers in the list. What we can do then is take every number in that list, and do a primality check. We would need all possible lists, basically all lists with a product below 100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+conjecture: if gcd(a,b) = 1, then gcd(a, a+b) = 1 and gcd(b, a+b) = 1
+
+
+gcd(a,b) $\implies$ $\exists$ x, y $\in$ $\mathbb(Z)$ s.t. xa + by = 1.
+
+Thus,
+
+xa + ya - ya + by = 1
+
+a(x - y) + y(a + b) = 1
+
+
+Thus, there is a linear combination s.t. Xa + Y(a + b) = 1
+
+Similarly for b. 
+
+
 
 
 

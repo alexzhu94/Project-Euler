@@ -1,4 +1,5 @@
 import math
+import numpy
 import fractions
 from fractions import Fraction
 from itertools import permutations
@@ -237,6 +238,18 @@ def getPrimeFactors(n, primes):
 	if n != 1:
 		print "More Primes!"
 	return factors
+
+def primeFactorize(n):
+    i = 2
+    l = []
+    while n != 1:
+        if n%i == 0:
+            #print (i, n)
+            l = l + [i]
+            while n%i == 0:
+                n = n/i
+        i = i + 1
+    return l
 
 def doPrimeFact(n, primes):
     factors = []
@@ -6610,52 +6623,6 @@ def fermatFact(n):
     return (a - int(b**0.5), a + int(b**0.5))
 
 
-def getPrimeFactors(n, d):
-    if n in d.keys():
-        return d[n]
-
-    if n%2 == 1:
-        (a,b) = fermatFact(n)
-        if a == 1:
-            d[b] = [b]
-            return d[b]
-        else:
-            currA = []
-            currB = []
-            if a in d.keys():
-                currA = d[a]
-            else:
-                d[a] = getPrimeFactors(a, d)
-                currA = d[a]
-
-            if b in d.keys():
-                currB = d[b]
-            else:
-                d[b] = getPrimeFactors(b, d)
-                currB = d[b]
-            return currA + currB
-    else:
-        l = [2]
-        temp = n
-        temp = temp/2
-        while temp%2 == 0:
-            l = l + [2]
-            temp = temp/2
-        if temp == 1:
-            return l
-        else:
-            d[n] = l + getPrimeFactors(temp, d)
-            return d[n]
-
-
-def findNumDivs(n, d):
-    temp = getPrimeFactors(n,d)
-    #print temp
-    #print d
-    s = set(temp)
-    l = [temp.count(a) + 1 for a in s]
-    return prodList(l)
-
 
 def concealedSq(n):
     if len(str(n)) != 19:
@@ -6682,6 +6649,187 @@ def euler206():
 def euler187():
     l = sieveOfE(10000000)
     return len(l)
+
+
+
+def findS(p1, p2):
+    found = False
+    curr = p2
+    thePow = int(math.log(p1,10)) + 1
+    count = 1
+    while not found:
+        if curr == p1:
+            return p2*count
+        curr = curr + p2
+        curr = curr%int(10**thePow)
+        count = count + 1
+
+def euler134():
+    l = sieveOfE(1000000)
+    theSum = 0
+    for x in range(2, len(l) - 1):
+        theSum = theSum + findS(l[x], l[x + 1])
+        print theSum
+    return theSum
+
+def threeConsec20Dig(currNum, currPos):
+    print currNum
+    if currPos == 19:
+        tot = sumList([int(i) for i in currNum[currPos - 1:]])
+        if tot >= 9:
+            return 0
+        else:
+            return len(range(tot, 9))
+
+    elif currPos == 0:
+        tot = 0
+        for x in range(1, 9):
+            tot = tot + threeConsec20Dig(str(x), 1)
+        return tot
+
+    elif currPos == 1:
+        tot = int(currNum[0])
+        for x in range(0, 9 - tot):
+            nextNum = currNum + str(x)
+            tot = tot + threeConsec20Dig(nextNum, currPos + 1)
+        return tot
+
+    else:
+        tot = sumList([int(i) for i in currNum[currPos - 1:]])
+        if tot >= 9:
+            return 0
+        else:
+            for x in range(0, 9 - tot):
+                nextNum = currNum + str(x)
+                tot = tot + threeConsec20Dig(nextNum, currPos + 1)
+            return tot
+
+def threeConsec(prevs, currPos):#this will only keep a list of length at most 2 denoting the previous 2 numbers selected
+    print currPos
+    if currPos == 19:
+        tot = sumList(prevs)
+        if tot >= 9:
+            return 0
+        else:
+            return len(range(tot, 9))
+
+    elif currPos == 0:
+        tot = 0
+        for x in range(1, 9):
+            tot = tot + threeConsec([x], 1)
+        return tot
+
+    elif currPos == 1:
+        tot = int(prevs[0])
+        for x in range(0, 9 - tot):
+            prevs = prevs + [x]
+            tot = tot + threeConsec(prevs, currPos + 1)
+        return tot
+
+    else:
+        tot = sumList(prevs)
+        grand = 0
+        if tot >= 9:
+            return 0
+        else:
+            for x in range(0, 9 - tot):
+                nextL = [prevs[1], x]
+                grand = grand + threeConsec(nextL, currPos + 1)
+            return grand
+
+
+
+def smallestModSqrt(n):
+    for y in range(2, n - 2, 2):
+        if (y**2 + 2*y) % n == 0:
+            return n - 1 - y
+    return 1
+
+def euler451():
+    curr = 0
+    for x in range(3, 2*10**7):
+        nextVal = smallestModSqrt(x)
+        curr = curr + nextVal
+        print (x, nextVal)
+    return curr
+
+
+def prg(n, p):
+    s0 = 290797
+    if n == 0:
+        return s0
+
+    sp = s0
+    sc = pow(sp, 2, 50515093)
+    count = 1
+    while count < n:
+        sp = sc
+        sc = pow(sp, 2, 50515093)
+        count = count + 1
+    return sc%p
+
+
+def biggestModRt(n):
+    curr = 1
+    for x in range(n - 1, 2, -1):
+        if x == (x**2)%n:
+            return x
+    return curr
+
+def avg(l):
+    return sumList(l)/len(l)
+
+
+
+def clientTimes124():
+    l1 = []
+    for i in range(1):
+        l1 += [numpy.random.normal(90, 7)]
+
+    print (avg(l1), max(l1))
+
+    l2 = []
+    for i in range(10):
+        l2 += [numpy.random.normal(90, 7)]
+
+    print (avg(l2), max(l2))
+
+
+    l3 = []
+    for i in range(100):
+        l3 += [numpy.random.normal(90, 7)]
+
+    print (avg(l3), max(l3))
+
+    l4 = []
+    for i in range(1000):
+        l4 += [numpy.random.normal(90, 7)]
+
+    print (avg(l4), max(l4))
+
+def rad(n):
+    l = primeFactorize(n)
+    return prodList(l)
+
+def euler127():
+    #since a + b = c, and GCD(a,b) = GCD(a,c) = GCD(b,c) = 1, one of a,b or c must be even
+    res = []
+    for a in range(1, 500):
+        s1 = set(primeFactorize(a))
+        l = range(a + 1, 1000 - a)
+        for y in s1:
+            l = [x for x in l if x%y != 0]
+        #get rid of any multiples of a's prime factors
+        print a
+        for b in l:
+            c = a + b
+            s2 = set(primeFactorize(b))
+            s3 = set(primeFactorize(c))
+            s4 = s3.union(s1.union(s2))
+            rad = prodList(list(s4))
+            if rad < c:
+                res = res + [(a,b,c)]
+    return res
 
 
 
