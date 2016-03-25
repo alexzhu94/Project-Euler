@@ -924,6 +924,52 @@ Thus, there is a linear combination s.t. Xa + Y(a + b) = 1
 
 Similarly for b. 
 
+          
+          x   
+        x x x x  
+      x x x x x x 
+    x x x x x x x x 
+  x x x x x x x x x x x  
+x x x x x x x x x x x x x x x 
+          x
+          x
+          x
+          x
+          x
+          x
+
+
+
+
+
+
+
+
+
+
+70 colored balls, 10 balls of each color. How many distinct colors do we expect after picking 20 balls?
+
+
+
+1st ball will be some color. 
+
+
+2nd ball will be distinct from the first ball with probability 60/69. Will be the same as the first one with probability 9/69. 
+
+
+Thus, if we draw 2 balls, we expect 1*(9/69) + 2*60/69 = 129/69 distinct colors
+
+
+Now how about 3 balls?
+
+
+If we have 2 distinct colors in the first 2, then the third ball will not be distinct from the other 2 with probability 18/68. It will be distinct with probability 50/68
+
+
+If we have 1 distinct color in the first 2, then the third ball will not be distinct with probability 8/68, and will be distinct with probability 60/68. 
+
+Thus, if we draw 3 balls, we expect 1*(9/69)*(8/68) + 2*
+
 
 
 

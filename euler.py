@@ -6814,25 +6814,34 @@ def rad(n):
 def euler127():
     #since a + b = c, and GCD(a,b) = GCD(a,c) = GCD(b,c) = 1, one of a,b or c must be even
     res = []
-    for a in range(1, 500):
+    for a in range(1, 2):
         s1 = set(primeFactorize(a))
-        l = range(a + 1, 1000 - a)
+        l = range(a + 1, 120000 - a)
         for y in s1:
             l = [x for x in l if x%y != 0]
         #get rid of any multiples of a's prime factors
-        print a
+        #print a
         for b in l:
+            print b
             c = a + b
             s2 = set(primeFactorize(b))
             s3 = set(primeFactorize(c))
             s4 = s3.union(s1.union(s2))
-            rad = prodList(list(s4))
-            if rad < c:
+            r = prodList(list(s4))
+            #r = rad(a*b*c)
+            if r < c:
                 res = res + [(a,b,c)]
     return res
 
+def calcQuads(m)
+    for a in range(1, m):
+        for b in range(1, m):
+            for c in range(1, m):
+                for d in range(1, m):
+                    len(range(-1*c, a))
+                    len(range(-1*d, b))
 
-
+#def euler504():
 
 
 
