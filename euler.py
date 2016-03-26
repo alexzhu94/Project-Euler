@@ -4670,10 +4670,30 @@ def phi(n, primes):
     #primes = [x for x in primes if x <= n]
     if n in primes:
         return n-1
-    factors = getPrimeFactors(n, primes)
+    factors = primeFactorize(n)
     for x in factors:
         n = (n*(x-1))/x
     return n
+
+def phiPlus(n):
+    factors = primeFactorize(n)
+    if len(factors) == 0:
+        return n - 1
+    for x in factors:
+        n = (n*(x-1))/x
+    return n
+
+def possPerm(factors):#determine from the factors whether it can have a totient perm
+    start = 1
+    for f in factors:
+        start = start * float(f - 1)/f
+        #print start
+        if start < 0.1:
+            return False
+    return True
+
+
+
 
 def isTotientPerm(n, primes):
     curr = phi(n, primes)
@@ -4991,6 +5011,8 @@ def euler78():
     return p.index(0)
 
 def numPerm(a,b):
+    if len(str(a)) != len(str(b)):
+        return False
     la = [int(i) for i in str(a)]
     lb = [int(i) for i in str(b)]
     la.sort()
@@ -4999,15 +5021,22 @@ def numPerm(a,b):
 
 
 def euler70():
-    l = sieveOfE(10**4)
-    perms = []
-    for x in l:
-        for y in l:
-            if x*y < 10**7 and numPerm(x*y, (x-1)*(y-1)):
-                perms = perms + [(x*y, (x-1)*(y-1))]
+    l = []
+    currList = range(0, 10**7)
+    for x in range(2, 10**7):
+        if currList[x] != x:
+            continue
+        for y in range(x, 10**7, x):
+            currList[y] = (currList[y]*(x - 1))/x
+    for x in range(2, 10**7):
+        print x
+        if numPerm(x, currList[x]):
+            l = l + [(x, currList[x])]
+    return l
 
-    ratios = [float(a)/b for (a,b) in perms]
-    return perms[ratios.index(min(ratios))]
+
+
+
 
 
 
@@ -6833,13 +6862,13 @@ def euler127():
                 res = res + [(a,b,c)]
     return res
 
-def calcQuads(m)
-    for a in range(1, m):
-        for b in range(1, m):
-            for c in range(1, m):
-                for d in range(1, m):
-                    len(range(-1*c, a))
-                    len(range(-1*d, b))
+#def calcQuads(m)
+    #for a in range(1, m):
+        #for b in range(1, m):
+            #for c in range(1, m):
+                #for d in range(1, m):
+                    #len(range(-1*c, a))
+                    #len(range(-1*d, b))
 
 #def euler504():
 
